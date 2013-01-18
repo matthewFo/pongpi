@@ -1,12 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"math/rand"
 	"net/http"
+	"os"
+	"os/signal"
+	"runtime/pprof"
 	"time"
 )
 
@@ -52,8 +56,35 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Generated", r.URL, " in", time.Since(startTime))
 }
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+
 // Application entry point
 func main() {
+
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			panic(err)
+		}
+		pprof.StartCPUProfile(f)
+		//defer pprof.StopCPUProfile()
+		//defer fmt.Println("EXITING") // this line not executed
+
+		// capture ctrl+c and stop CPU profiler
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		go func() {
+			for sig := range c {
+				fmt.Printf("captured %v, stopping profiler and exiting..", sig)
+				pprof.StopCPUProfile()
+				os.Exit(1)
+			}
+		}()
+
+		fmt.Println("Start profiling")
+	}
+
 	http.HandleFunc("/", htmlPageHandler)
 	http.HandleFunc("/image/", imageHandler)
 

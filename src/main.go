@@ -6,12 +6,18 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"math/rand"
+	"math"
 	"net/http"
 	"os"
 	"os/signal"
+	"pong"
 	"runtime/pprof"
 	"time"
+)
+
+// Global variables
+var (
+	field *pong.GameField
 )
 
 // Serve static html page
@@ -39,16 +45,19 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Cache-control", "max-age=0, must-revalidate, no-store")
 
-	spacing := 8
-	ledCount := 64
-	width, height := spacing*ledCount, 32
+	spacing := 2
+	width, height := spacing*int(field.Width()), 8
 	image := image.NewRGBA(image.Rect(0, 0, width, height))
 
-	color := color.RGBA{uint8(rand.Intn(256)), uint8(rand.Intn(256)), uint8(rand.Intn(256)), 255}
-
 	for ledPos := 0; ledPos < width; ledPos += spacing {
+
+		position := float64(ledPos) / float64(width)
+
+		fieldColor := field.ColorAt(position)
+		field.Animate(0.002)
+
 		for y := 0; y < height; y++ {
-			image.Set(ledPos, y, color)
+			image.Set(ledPos, y, color.RGBA(fieldColor))
 		}
 	}
 
@@ -84,6 +93,9 @@ func main() {
 
 		fmt.Println("Start profiling")
 	}
+
+	field = pong.NewGameField(64)
+	field.Add(pong.NewSinusoid(math.Pi*4, pong.RGBA{255, 0, 0, 255}, 1))
 
 	http.HandleFunc("/", htmlPageHandler)
 	http.HandleFunc("/image/", imageHandler)

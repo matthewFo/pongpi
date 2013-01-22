@@ -10,11 +10,17 @@ type SettingsData struct {
 	// Max frames per second, app uses thread.sleep to limit FPS
 	MaxFPS float64
 
-	// Min time for a single frame
-	MinFrameTime float64 `xml:"-"`
-
 	// Number of Leds in board
 	LedCount int
+
+	// path to the SPI device
+	SpiFilePath string
+
+	// speed of the bus
+	SpiBusSpeedHz uint
+
+	// Min time for a single frame
+	MinFrameTime float64 `xml:"-"`
 }
 
 // Global settings variable

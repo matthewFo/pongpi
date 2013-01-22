@@ -92,12 +92,15 @@ func (this *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) {
 
 // RGB LED Display
 type LedDisplay struct {
+	bus *SpiBus
 }
 
 var testLedDisplay Display = &LedDisplay{}
 
-func NewLedDisplay(field *GameField) *LedDisplay {
-	return &LedDisplay{}
+func NewLedDisplay(settings SettingsData) *LedDisplay {
+	return &LedDisplay{
+		bus: NewSpiBus(settings.SpiFilePath, settings.SpiBusSpeedHz),
+	}
 }
 
 func (this *LedDisplay) Render(data []RGBA) {

@@ -7,15 +7,15 @@ import (
 // Defines all of the information
 type GameField struct {
 
-	// Size of the field, from 0 to width inclusive
-	width float64
+	// Size of the field, from 0 to width exclusive
+	width int
 
 	// All of the drawable items, stored in increasing ZIndex order
 	drawables *list.List
 }
 
 // Initialized a new field
-func NewGameField(width float64) *GameField {
+func NewGameField(width int) *GameField {
 
 	return &GameField{
 		width:     width,
@@ -79,6 +79,15 @@ func (field *GameField) Animate(dt float64) {
 	}
 }
 
+// Render each integer position and pass that to the Display
+func (field *GameField) RenderTo(display Display) {
+	newRender := make([]RGBA, field.width)
+	for ledIndex := 0; ledIndex < field.width; ledIndex++ {
+		newRender[ledIndex] = field.ColorAt(float64(ledIndex))
+	}
+	display.Render(newRender)
+}
+
 // Returns true if the field of drawables is valid
 func (field *GameField) IsValid() bool {
 
@@ -106,6 +115,6 @@ func (field *GameField) DrawableLen() int {
 }
 
 // Width of the field
-func (field *GameField) Width() float64 {
+func (field *GameField) Width() int {
 	return field.width
 }

@@ -3,14 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"image"
-	"image/color"
-	"image/png"
+	"log"
+	_ "log"
 	_ "math"
-	"net/http"
 	"os"
 	"os/signal"
 	"pong"
+	. "pong"
 	"runtime/pprof"
 	"time"
 )
@@ -20,54 +19,12 @@ var (
 	field *pong.GameField
 )
 
-// Serve static html page
-func htmlPageHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `
-<html>
-	<head><script type="text/javascript"><!--
-		function reloadpic()
-        {
-			document.images["gameBoard"].src = "image/test.png";
-			setTimeout(reloadpic, 500);
-        }
-        setTimeout(reloadpic, 500)
-	--></script></head>
-	<body><img id="gameBoard" src="image/test.png"/></body>
-</html>`)
-
-}
-
-// Return newly generating image
-func imageHandler(w http.ResponseWriter, r *http.Request) {
-
-	startTime := time.Now()
-
-	w.Header().Set("Content-Type", "image/png")
-	w.Header().Set("Cache-control", "max-age=0, must-revalidate, no-store")
-
-	field.Animate(0.04)
-
-	spacing := 2
-	width, height := int(field.Width()), 8
-	image := image.NewRGBA(image.Rect(0, 0, width*spacing, height))
-
-	for position := 0; position <= width; position++ {
-
-		fieldColor := field.ColorAt(float64(position))
-
-		for y := 0; y < height; y++ {
-			image.Set(position*spacing, y, color.RGBA(fieldColor))
-		}
-	}
-
-	png.Encode(w, image)
-	fmt.Println("Generated", r.URL, " in", time.Since(startTime))
-}
-
 var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
 
 // Application entry point
 func main() {
+
+	Settings.Read()
 
 	flag.Parse()
 	if *cpuprofile != "" {
@@ -76,8 +33,7 @@ func main() {
 			panic(err)
 		}
 		pprof.StartCPUProfile(f)
-		//defer pprof.StopCPUProfile()
-		//defer fmt.Println("EXITING") // this line not executed
+		//defer pprof.StopCPUProfile() // line not executed because of how exiting from http.ListenAnServe is a process kill
 
 		// capture ctrl+c and stop CPU profiler
 		c := make(chan os.Signal, 1)
@@ -93,13 +49,43 @@ func main() {
 		fmt.Println("Start profiling")
 	}
 
+	log.Print("Creating field")
 	field = pong.NewGameField(64)
 	//field.Add(pong.NewSinusoid(math.Pi*4, pong.RGBA{255, 0, 0, 255}, 1))
 	field.Add(pong.NewHSLWheel(field, 1))
 
-	http.HandleFunc("/", htmlPageHandler)
-	http.HandleFunc("/image/", imageHandler)
+	log.Print("Creating display")
+	//display := pong.NewWebDisplay(field)
+	display := pong.NewLedDisplay(field)
 
-	fmt.Println("Server listening on 8080")
-	http.ListenAndServe(":8080", nil)
+	prevTime := time.Now()
+	curTime := time.Now()
+
+	log.Print("MinFrameTime is ", Settings.MinFrameTime)
+
+	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	for _ = range ticks {
+
+		prevTime = curTime
+		curTime = time.Now()
+		dt := curTime.Sub(prevTime).Seconds()
+
+		//log.Print("Loop", dt)
+
+		field.Animate(dt)
+		field.RenderTo(display)
+
+		// limit to a max FPS
+		// if dt < Settings.MinFrameTime {
+		// 	sleepFor := Settings.MinFrameTime - dt
+		// 	sleepForDuration := time.Duration(sleepFor*1000.0) * time.Millisecond
+		// 	//log.Print("Sleep ", sleepFor, sleepForDuration)
+		// 	time.Sleep(time.Duration(sleepFor*1000.0) * time.Millisecond)
+		// }
+	}
+}
+
+// loop the game
+func gameLoop() {
+
 }

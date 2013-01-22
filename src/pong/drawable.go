@@ -2,6 +2,7 @@ package pong
 
 import (
 	"image/color"
+	_ "log"
 	"math"
 )
 
@@ -132,7 +133,7 @@ var testHSLWheel Drawable = &HSLWheel{}
 // Construct an HSLWheel
 func NewHSLWheel(field *GameField, zindex ZIndex) *HSLWheel {
 	return &HSLWheel{
-		scale:  field.width,
+		scale:  float64(field.width),
 		hue:    0.0,
 		zindex: zindex,
 	}
@@ -161,11 +162,11 @@ func hslToRGB(hue, saturation, luminosity float64) RGBA {
 	} else {
 
 		hueToRGB := func(p, q, t float64) float64 {
-			if t < 0 {
-				t += 1
+			if t < 0.0 {
+				t += 1.0
 			}
-			if t > 1 {
-				t -= 1
+			if t > 1.0 {
+				t -= 1.0
 			}
 
 			if t < 1.0/6.0 {
@@ -182,7 +183,7 @@ func hslToRGB(hue, saturation, luminosity float64) RGBA {
 
 		var q float64
 		if luminosity < 0.5 {
-			q = luminosity * (1 + saturation)
+			q = luminosity * (1.0 + saturation)
 		} else {
 			q = luminosity + saturation - luminosity*saturation
 		}
@@ -206,11 +207,13 @@ func (this *HSLWheel) ZIndex() ZIndex {
 // Animate line
 func (this *HSLWheel) Animate(dt float64) bool {
 
-	this.hue += dt
+	this.hue += dt * 0.1
 
 	if this.hue > 1.0 {
 		this.hue -= 1.0
 	}
+
+	//log.Print("Hue", this.hue)
 
 	return true
 }

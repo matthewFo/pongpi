@@ -1,4 +1,5 @@
-// +build ignore
+// +build !windows
+
 package pong
 
 import (

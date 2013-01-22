@@ -56,7 +56,7 @@ func main() {
 
 	log.Print("Creating display")
 	//display := pong.NewWebDisplay(field)
-	display := pong.NewLedDisplay(field)
+	display := pong.NewLedDisplay(Settings)
 
 	prevTime := time.Now()
 	curTime := time.Now()

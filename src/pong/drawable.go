@@ -66,7 +66,7 @@ func (line Line) Animate(dt float64) bool {
 	return true
 }
 
-// Represents
+// Represents a background animation of a sinusoid moving forward
 type Sinusoid struct {
 	scale float64
 
@@ -111,6 +111,106 @@ func (this *Sinusoid) ZIndex() ZIndex {
 func (this *Sinusoid) Animate(dt float64) bool {
 
 	this.offset += dt
+
+	return true
+}
+
+// Represents a background animation of moving through the HSL color space
+type HSLWheel struct {
+
+	// Hwo to scale lumniosity so that it's event spread across all points
+	scale float64
+
+	// goes from 0 to 1 and then wraps
+	hue float64
+
+	zindex ZIndex
+}
+
+var testHSLWheel Drawable = &HSLWheel{}
+
+// Construct an HSLWheel
+func NewHSLWheel(field *GameField, zindex ZIndex) *HSLWheel {
+	return &HSLWheel{
+		scale:  field.width,
+		hue:    0.0,
+		zindex: zindex,
+	}
+}
+
+// Returns the color at position blended on top of baseColor
+func (this *HSLWheel) ColorAt(position float64, baseColor RGBA) RGBA {
+
+	luminosity := position / this.scale
+
+	// shift it up because we don't care much about the very dark colors
+	luminosity = luminosity*0.8 + 0.2
+
+	return hslToRGB(this.hue, 1.0, luminosity)
+}
+
+// Convert HSL to RGB, based on http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+func hslToRGB(hue, saturation, luminosity float64) RGBA {
+
+	var red, green, blue uint8
+
+	if saturation == 0 {
+		red = 255
+		green = 255
+		blue = 255
+	} else {
+
+		hueToRGB := func(p, q, t float64) float64 {
+			if t < 0 {
+				t += 1
+			}
+			if t > 1 {
+				t -= 1
+			}
+
+			if t < 1.0/6.0 {
+				return p + (q-p)*6.0*t
+			}
+			if t < 1.0/2.0 {
+				return q
+			}
+			if t < 2.0/3.0 {
+				return p + (q-p)*(2.0/3.0-t)*6.0
+			}
+			return p
+		}
+
+		var q float64
+		if luminosity < 0.5 {
+			q = luminosity * (1 + saturation)
+		} else {
+			q = luminosity + saturation - luminosity*saturation
+		}
+
+		p := 2*luminosity - q
+		red = uint8(hueToRGB(p, q, hue+1.0/3.0) * 255.0)
+		green = uint8(hueToRGB(p, q, hue) * 255.0)
+		blue = uint8(hueToRGB(p, q, hue-1.0/3.0) * 255.0)
+	}
+
+	//log.Print("Converted ", hue, saturation, luminosity, " to ", red, green, blue)
+
+	return RGBA{red, green, blue, 255}
+}
+
+// ZIndex of line
+func (this *HSLWheel) ZIndex() ZIndex {
+	return this.zindex
+}
+
+// Animate line
+func (this *HSLWheel) Animate(dt float64) bool {
+
+	this.hue += dt
+
+	if this.hue > 1.0 {
+		this.hue -= 1.0
+	}
 
 	return true
 }

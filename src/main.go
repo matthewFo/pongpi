@@ -6,7 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"math"
+	_ "math"
 	"net/http"
 	"os"
 	"os/signal"
@@ -45,19 +45,18 @@ func imageHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Cache-control", "max-age=0, must-revalidate, no-store")
 
+	field.Animate(0.04)
+
 	spacing := 2
-	width, height := spacing*int(field.Width()), 8
-	image := image.NewRGBA(image.Rect(0, 0, width, height))
+	width, height := int(field.Width()), 8
+	image := image.NewRGBA(image.Rect(0, 0, width*spacing, height))
 
-	for ledPos := 0; ledPos < width; ledPos += spacing {
+	for position := 0; position <= width; position++ {
 
-		position := float64(ledPos) / float64(width)
-
-		fieldColor := field.ColorAt(position)
-		field.Animate(0.002)
+		fieldColor := field.ColorAt(float64(position))
 
 		for y := 0; y < height; y++ {
-			image.Set(ledPos, y, color.RGBA(fieldColor))
+			image.Set(position*spacing, y, color.RGBA(fieldColor))
 		}
 	}
 
@@ -95,7 +94,8 @@ func main() {
 	}
 
 	field = pong.NewGameField(64)
-	field.Add(pong.NewSinusoid(math.Pi*4, pong.RGBA{255, 0, 0, 255}, 1))
+	//field.Add(pong.NewSinusoid(math.Pi*4, pong.RGBA{255, 0, 0, 255}, 1))
+	field.Add(pong.NewHSLWheel(field, 1))
 
 	http.HandleFunc("/", htmlPageHandler)
 	http.HandleFunc("/image/", imageHandler)

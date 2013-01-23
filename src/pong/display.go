@@ -97,12 +97,25 @@ type LedDisplay struct {
 
 var testLedDisplay Display = &LedDisplay{}
 
+// Construct an LedDisplay
 func NewLedDisplay(settings SettingsData) *LedDisplay {
 	return &LedDisplay{
 		bus: NewSpiBus(settings.SpiFilePath, settings.SpiBusSpeedHz),
 	}
 }
 
-func (this *LedDisplay) Render(data []RGBA) {
-	log.Print("Render LED")
+// Render the colorData to the SPI bus
+func (this *LedDisplay) Render(colorData []RGBA) {
+	byteData := make([]byte, 4+len(colorData)*3+4)
+
+	for colorIndex := 0; colorIndex < len(colorData); colorIndex++ {
+		color := colorData[colorIndex]
+		byteIndex := colorIndex*3 + 4
+
+		byteData[byteIndex+0] = (color.G >> 1) | 0x80
+		byteData[byteIndex+1] = (color.R >> 1) | 0x80
+		byteData[byteIndex+2] = (color.B >> 1) | 0x80
+	}
+
+	this.bus.Write(byteData)
 }

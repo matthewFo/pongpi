@@ -22,20 +22,19 @@ type SpiBus struct {
 
 // Constants used by ioctl
 const (
-	SPI_READ  = 1
-	SPI_WRITE = 0
-
-	SPI_IOC_WR_MODE = iota
-	SPI_IOC_RD_MODE
-	SPI_IOC_WR_BITS_PER_WORD
-	SPI_IOC_RD_BITS_PER_WORD
-	SPI_IOC_WR_MAX_SPEED_HZ
-	SPI_IOC_RD_MAX_SPEED_HZ
+	// these values were determined experimentally by running spidev_test.c on a raspberry pi
+	// they may not work on other systems
+	SPI_IOC_WR_MODE = 0x40016B01
+	SPI_IOC_RD_MODE = 0x80016B01
+	SPI_IOC_WR_BITS_PER_WORD = 0x40016B03
+	SPI_IOC_RD_BITS_PER_WORD = 0x80016B03
+	SPI_IOC_WR_MAX_SPEED_HZ = 0x40046B04
+	SPI_IOC_RD_MAX_SPEED_HZ = 0x80046B04
 )
 
 func NewSpiBus(busFilePath string, busSpeedHz uint) *SpiBus {
 
-	if 100 < busSpeedHz || busSpeedHz > 10000000 {
+	if busSpeedHz < 100 || 10000000 < busSpeedHz {
 		log.Fatal("Bus speed is out of range", busSpeedHz)
 	}
 
@@ -44,11 +43,17 @@ func NewSpiBus(busFilePath string, busSpeedHz uint) *SpiBus {
 		log.Fatal(err)
 	}
 
+	log.Print("WR_MODE")
 	configBus(file, SPI_IOC_WR_MODE, 0)
+	log.Print("RD_MODE")
 	configBus(file, SPI_IOC_RD_MODE, 0)
+	log.Print("WR_BITS")
 	configBus(file, SPI_IOC_WR_BITS_PER_WORD, 8)
+	log.Print("RD_BITS")
 	configBus(file, SPI_IOC_RD_BITS_PER_WORD, 8)
+	log.Print("WR_SPEED")
 	configBus(file, SPI_IOC_WR_MAX_SPEED_HZ, busSpeedHz)
+	log.Print("RD_SPEED")
 	configBus(file, SPI_IOC_RD_MAX_SPEED_HZ, busSpeedHz)
 
 	return &SpiBus{
@@ -58,9 +63,9 @@ func NewSpiBus(busFilePath string, busSpeedHz uint) *SpiBus {
 
 // Set the value
 func configBus(file *os.File, command, value uint) {
-	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, 3, uintptr(file.Fd()), uintptr(unsafe.Pointer(&command)), uintptr(unsafe.Pointer(&value)))
+	_, _, err := syscall.Syscall(syscall.SYS_IOCTL, uintptr(file.Fd()), uintptr(command), uintptr(unsafe.Pointer(&value)))
 	if err != 0 {
-		log.Fatal("Error attempting to configure SPI bus", err)
+		log.Fatal("Error attempting to configure SPI bus ", err)
 	}
 }
 

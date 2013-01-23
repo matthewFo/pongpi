@@ -53,8 +53,8 @@ func main() {
 	field.Add(NewSinusoid(field, 1))
 	//field.Add(NewHSLWheel(field, 1))
 
-	display := NewWebDisplay(field)
-	//display := NewLedDisplay(Settings)
+	//display := NewWebDisplay(field)
+	display := NewLedDisplay(Settings)
 
 	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 

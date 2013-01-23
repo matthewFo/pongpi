@@ -69,12 +69,12 @@ func (line Line) Animate(dt float64) bool {
 
 // Represents a background animation of a sinusoid moving forward
 type Sinusoid struct {
+
+	// length of field
 	scale float64
 
-	originalColor RGBA
-
 	// offset related to time passing
-	offset float64
+	offsets [3]float64
 
 	zindex ZIndex
 }
@@ -82,24 +82,31 @@ type Sinusoid struct {
 var testSinusoid Drawable = &Sinusoid{}
 
 // Construct a Sinusoid
-func NewSinusoid(scale float64, originalColor RGBA, zindex ZIndex) *Sinusoid {
+func NewSinusoid(field *GameField, zindex ZIndex) *Sinusoid {
 	return &Sinusoid{
-		scale:         scale,
-		originalColor: originalColor,
-		zindex:        zindex,
+		scale:   float64(field.Width()),
+		offsets: [3]float64{0.0, 0.0, 0.0},
+		zindex:  zindex,
 	}
 }
 
 // Returns the color at position blended on top of baseColor
 func (this *Sinusoid) ColorAt(position float64, baseColor RGBA) RGBA {
 
-	sine := (math.Sin((position+this.offset)*this.scale) + 1.0) / 2.0
+	// 0 to 1
+	fieldPercentage := position / this.scale
+
+	red := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[0]) + 1.0) / 2.0
+	green := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[1]) + 1.0) / 2.0
+	blue := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[2]) + 1.0) / 2.0
+
+	//sine := (math.Sin((position+this.offset)*this.scale) + 1.0) / 2.0
 
 	return RGBA{
-		uint8(float64(this.originalColor.R) * sine),
-		uint8(float64(this.originalColor.G) * sine),
-		uint8(float64(this.originalColor.B) * sine),
-		this.originalColor.A,
+		uint8(red * 255.0),
+		uint8(green * 255.0),
+		uint8(blue * 255.0),
+		255,
 	}
 }
 
@@ -111,7 +118,20 @@ func (this *Sinusoid) ZIndex() ZIndex {
 // Animate line
 func (this *Sinusoid) Animate(dt float64) bool {
 
-	this.offset += dt
+	this.offsets[0] += dt * 0.62
+	if this.offsets[0] > 2.0*math.Pi {
+		this.offsets[0] -= 2.0 * math.Pi
+	}
+
+	this.offsets[1] += dt * 1.00
+	if this.offsets[1] > 2.0*math.Pi {
+		this.offsets[1] -= 2.0 * math.Pi
+	}
+
+	this.offsets[2] += dt * 1.58
+	if this.offsets[2] > 2.0*math.Pi {
+		this.offsets[2] -= 2.0 * math.Pi
+	}
 
 	return true
 }

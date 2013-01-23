@@ -49,43 +49,19 @@ func main() {
 		fmt.Println("Start profiling")
 	}
 
-	log.Print("Creating field")
-	field = pong.NewGameField(64)
-	//field.Add(pong.NewSinusoid(math.Pi*4, pong.RGBA{255, 0, 0, 255}, 1))
-	field.Add(pong.NewHSLWheel(field, 1))
+	field = NewGameField(64)
+	field.Add(NewSinusoid(field, 1))
+	//field.Add(NewHSLWheel(field, 1))
 
-	log.Print("Creating display")
-	//display := pong.NewWebDisplay(field)
-	display := pong.NewLedDisplay(Settings)
-
-	prevTime := time.Now()
-	curTime := time.Now()
+	display := NewWebDisplay(field)
+	//display := NewLedDisplay(Settings)
 
 	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 
 	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
 	for _ = range ticks {
 
-		prevTime = curTime
-		curTime = time.Now()
-		dt := curTime.Sub(prevTime).Seconds()
-
-		//log.Print("Loop", dt)
-
-		field.Animate(dt)
+		field.Animate(Settings.MinFrameTime)
 		field.RenderTo(display)
-
-		// limit to a max FPS
-		// if dt < Settings.MinFrameTime {
-		// 	sleepFor := Settings.MinFrameTime - dt
-		// 	sleepForDuration := time.Duration(sleepFor*1000.0) * time.Millisecond
-		// 	//log.Print("Sleep ", sleepFor, sleepForDuration)
-		// 	time.Sleep(time.Duration(sleepFor*1000.0) * time.Millisecond)
-		// }
 	}
-}
-
-// loop the game
-func gameLoop() {
-
 }

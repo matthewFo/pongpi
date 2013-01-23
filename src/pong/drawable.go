@@ -118,17 +118,17 @@ func (this *Sinusoid) ZIndex() ZIndex {
 // Animate line
 func (this *Sinusoid) Animate(dt float64) bool {
 
-	this.offsets[0] += dt * 0.62
+	this.offsets[0] += dt * 1.62
 	if this.offsets[0] > 2.0*math.Pi {
 		this.offsets[0] -= 2.0 * math.Pi
 	}
 
-	this.offsets[1] += dt * 1.00
+	this.offsets[1] += dt * 2.49
 	if this.offsets[1] > 2.0*math.Pi {
 		this.offsets[1] -= 2.0 * math.Pi
 	}
 
-	this.offsets[2] += dt * 1.58
+	this.offsets[2] += dt * 3.58
 	if this.offsets[2] > 2.0*math.Pi {
 		this.offsets[2] -= 2.0 * math.Pi
 	}
@@ -165,7 +165,7 @@ func (this *HSLWheel) ColorAt(position float64, baseColor RGBA) RGBA {
 	luminosity := position / this.scale
 
 	// shift it up because we don't care much about the very dark colors
-	luminosity = luminosity*0.8 + 0.2
+	//luminosity = luminosity*0.8 + 0.2
 
 	return hslToRGB(this.hue, 1.0, luminosity)
 }

@@ -43,17 +43,11 @@ func NewSpiBus(busFilePath string, busSpeedHz uint) *SpiBus {
 		log.Fatal(err)
 	}
 
-	log.Print("WR_MODE")
 	configBus(file, SPI_IOC_WR_MODE, 0)
-	log.Print("RD_MODE")
 	configBus(file, SPI_IOC_RD_MODE, 0)
-	log.Print("WR_BITS")
 	configBus(file, SPI_IOC_WR_BITS_PER_WORD, 8)
-	log.Print("RD_BITS")
 	configBus(file, SPI_IOC_RD_BITS_PER_WORD, 8)
-	log.Print("WR_SPEED")
 	configBus(file, SPI_IOC_WR_MAX_SPEED_HZ, busSpeedHz)
-	log.Print("RD_SPEED")
 	configBus(file, SPI_IOC_RD_MAX_SPEED_HZ, busSpeedHz)
 
 	return &SpiBus{

@@ -93,31 +93,38 @@ func (this *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) {
 // RGB LED Display
 type LedDisplay struct {
 	bus *SpiBus
+
+	expectedColors int
+	byteData       []byte
 }
 
 var testLedDisplay Display = &LedDisplay{}
 
 // Construct an LedDisplay
-func NewLedDisplay(settings SettingsData) *LedDisplay {
+func NewLedDisplay(field *GameField, settings SettingsData) *LedDisplay {
 	return &LedDisplay{
-		bus: NewSpiBus(settings.SpiFilePath, settings.SpiBusSpeedHz),
+		bus:            NewSpiBus(settings.SpiFilePath, settings.SpiBusSpeedHz),
+		expectedColors: field.Width(),
+		byteData:       make([]byte, 4+field.Width()*3+4), // +8 is for the null bytes on front and end of data
 	}
 }
 
 // Render the colorData to the SPI bus
 func (this *LedDisplay) Render(colorData []RGBA) {
-	byteData := make([]byte, 4+len(colorData)*3+4)
+	if len(colorData) != this.expectedColors {
+		log.Fatal("colorData was not the expected length of ", this.expectedColors, " saw ", len(colorData))
+	}
 
 	for colorIndex := 0; colorIndex < len(colorData); colorIndex++ {
 		color := colorData[colorIndex]
 		byteIndex := colorIndex*3 + 4
 
-		byteData[byteIndex+0] = gammaCorrectionLookup[color.G] | 0x80
-		byteData[byteIndex+1] = gammaCorrectionLookup[color.R] | 0x80
-		byteData[byteIndex+2] = gammaCorrectionLookup[color.B] | 0x80
+		this.byteData[byteIndex+0] = gammaCorrectionLookup[color.G] | 0x80
+		this.byteData[byteIndex+1] = gammaCorrectionLookup[color.R] | 0x80
+		this.byteData[byteIndex+2] = gammaCorrectionLookup[color.B] | 0x80
 	}
 
-	this.bus.Write(byteData)
+	this.bus.Write(this.byteData)
 }
 
 // based on a pull request found at http://forums.adafruit.com/viewtopic.php?f=47&t=26591

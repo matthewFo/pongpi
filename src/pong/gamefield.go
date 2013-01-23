@@ -12,14 +12,18 @@ type GameField struct {
 
 	// All of the drawable items, stored in increasing ZIndex order
 	drawables *list.List
+
+	// Buffer used to render the field
+	renderBuffer []RGBA
 }
 
 // Initialized a new field
 func NewGameField(width int) *GameField {
 
 	return &GameField{
-		width:     width,
-		drawables: list.New(),
+		width:        width,
+		drawables:    list.New(),
+		renderBuffer: make([]RGBA, width),
 	}
 }
 
@@ -81,11 +85,11 @@ func (field *GameField) Animate(dt float64) {
 
 // Render each integer position and pass that to the Display
 func (field *GameField) RenderTo(display Display) {
-	newRender := make([]RGBA, field.width)
+
 	for ledIndex := 0; ledIndex < field.width; ledIndex++ {
-		newRender[ledIndex] = field.ColorAt(float64(ledIndex))
+		field.renderBuffer[ledIndex] = field.ColorAt(float64(ledIndex))
 	}
-	display.Render(newRender)
+	display.Render(field.renderBuffer)
 }
 
 // Returns true if the field of drawables is valid

@@ -54,7 +54,7 @@ func main() {
 	//field.Add(NewHSLWheel(field, 1))
 
 	//display := NewWebDisplay(field)
-	display := NewLedDisplay(Settings)
+	display := NewLedDisplay(field, Settings)
 
 	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 

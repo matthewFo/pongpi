@@ -162,7 +162,7 @@ func NewBall(field *GameField) *Ball {
 	return &Ball{
 		position:    0,
 		velocity:    float64(field.Width()) / 3.0,
-		maxPosition: float64(field.Width()),
+		maxPosition: float64(field.Width() - 1),
 		zindex:      100,
 	}
 }
@@ -172,7 +172,7 @@ func (this *Ball) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 
 	distance := math.Abs(position - this.position)
 	if distance < 1 {
-		color = blend(RGBA{128, 128, 128, uint8((1.0 - distance) * 255.0)}, baseColor)
+		color = blend(RGBA{255, 255, 255, uint8((1.0 - distance) * 255.0)}, baseColor)
 	} else {
 		color = baseColor
 	}
@@ -196,6 +196,8 @@ func (this *Ball) Animate(dt float64) bool {
 		this.velocity = -this.velocity
 	}
 
+	//log.Print(this.position, this.velocity)
+
 	return true
 }
 
@@ -205,21 +207,47 @@ type Sinusoid struct {
 	// length of field
 	scale float64
 
-	// offset related to time passing
+	// offset related to time passing, from 0 to 1
 	offsets [3]float64
 
 	zindex ZIndex
+
+	sineLookup []uint8
 }
 
 var testSinusoid Drawable = &Sinusoid{}
 
 // Construct a Sinusoid
 func NewSinusoid(field *GameField, zindex ZIndex) *Sinusoid {
-	return &Sinusoid{
+	sine := &Sinusoid{
 		scale:   float64(field.Width()),
 		offsets: [3]float64{0.0, 0.0, 0.0},
 		zindex:  zindex,
 	}
+
+	sine.buildLookup()
+
+	return sine
+}
+
+// build lookup table to make rendering much faster by precomputing math.Sin
+func (this *Sinusoid) buildLookup() {
+	this.sineLookup = make([]uint8, 256)
+	for index := 0; index < 256; index++ {
+		fieldPercentage := float64(index) / 256
+
+		value := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[0]) + 1.0) / 2.0
+		this.sineLookup[index] = uint8(value*255.0) >> 1
+	}
+}
+
+// lookup the sine value instead of computing using math.Sin
+func (this *Sinusoid) lookup(fieldPercentage float64) uint8 {
+	if fieldPercentage > 1 {
+		fieldPercentage -= 1
+	}
+
+	return this.sineLookup[int(fieldPercentage*256)]
 }
 
 // Returns the color at position blended on top of baseColor
@@ -228,16 +256,10 @@ func (this *Sinusoid) ColorAt(position float64, baseColor RGBA) RGBA {
 	// 0 to 1
 	fieldPercentage := position / this.scale
 
-	red := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[0]) + 1.0) / 2.0
-	green := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[1]) + 1.0) / 2.0
-	blue := (math.Sin(fieldPercentage*2.0*math.Pi+this.offsets[2]) + 1.0) / 2.0
-
-	//sine := (math.Sin((position+this.offset)*this.scale) + 1.0) / 2.0
-
 	return RGBA{
-		uint8(red * 255.0),
-		uint8(green * 255.0),
-		uint8(blue * 255.0),
+		this.lookup(fieldPercentage + this.offsets[0]),
+		this.lookup(fieldPercentage + this.offsets[1]),
+		this.lookup(fieldPercentage + this.offsets[2]),
 		255,
 	}
 }
@@ -250,19 +272,19 @@ func (this *Sinusoid) ZIndex() ZIndex {
 // Animate line
 func (this *Sinusoid) Animate(dt float64) bool {
 
-	this.offsets[0] += dt * 1.62
-	if this.offsets[0] > 2.0*math.Pi {
-		this.offsets[0] -= 2.0 * math.Pi
+	this.offsets[0] += dt * 0.27
+	if this.offsets[0] > 1 {
+		this.offsets[0] -= 1
 	}
 
-	this.offsets[1] += dt * 2.49
-	if this.offsets[1] > 2.0*math.Pi {
-		this.offsets[1] -= 2.0 * math.Pi
+	this.offsets[1] += dt * 0.41
+	if this.offsets[1] > 1 {
+		this.offsets[1] -= 1
 	}
 
-	this.offsets[2] += dt * 3.58
-	if this.offsets[2] > 2.0*math.Pi {
-		this.offsets[2] -= 2.0 * math.Pi
+	this.offsets[2] += dt * 0.59
+	if this.offsets[2] > 1 {
+		this.offsets[2] -= 1
 	}
 
 	return true

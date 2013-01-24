@@ -4,6 +4,6 @@
 	<LedCount>64</LedCount>
 	<SpiFilePath>/dev/spidev0.0</SpiFilePath>
 	<SpiBusSpeedHz>1000000</SpiBusSpeedHz>
-	<LeftButtonPath>/sys/class/gpio/gpio22</LeftButtonPath>
-	<RightButtonPath>/sys/class/gpio/gpio27</RightButtonPath>
+	<LeftButtonPath>/sys/class/gpio/gpio22/value</LeftButtonPath>
+	<RightButtonPath>/sys/class/gpio/gpio27/value</RightButtonPath>
 </SettingsData>

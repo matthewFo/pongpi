@@ -14,6 +14,7 @@ type GpioReader struct {
 	data            []byte
 }
 
+// exports already run: gpio export 27 in and gpio export 22 in
 func NewGpioReader(settings SettingsData) *GpioReader {
 
 	reader := &GpioReader{
@@ -26,7 +27,7 @@ func NewGpioReader(settings SettingsData) *GpioReader {
 		log.Fatal(err)
 	}
 
-	reader.rightButtonFile, err = os.Open(settings.LeftButtonPath)
+	reader.rightButtonFile, err = os.Open(settings.RightButtonPath)
 	if err != nil {
 		log.Fatal(err)
 	}

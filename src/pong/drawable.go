@@ -2,7 +2,6 @@ package pong
 
 import (
 	"image/color"
-	_ "log"
 	"math"
 )
 
@@ -23,6 +22,24 @@ type Drawable interface {
 
 	// Move this Drawable forward in time by dt, returns keepAlive
 	Animate(dt float64) (keepAlive bool)
+}
+
+func blend(foreground, background RGBA) (color RGBA) {
+
+	fr,fg,fb,fa := uint(foreground.R), uint(foreground.G), uint(foreground.B), uint(foreground.A)
+	br,bg,bb,ba := uint(background.R), uint(background.G), uint(background.B), uint(background.A)
+
+	opacity := fa
+	backgroundOpacity := (ba * (255 - fa)) >> 8
+
+	newColor := RGBA{
+		uint8((fr * opacity) >> 8 + (br * backgroundOpacity) >> 8),
+		uint8((fg * opacity) >> 8 + (bg * backgroundOpacity) >> 8),
+		uint8((fb * opacity) >> 8 + (bb * backgroundOpacity) >> 8),
+		uint8(opacity),
+	}
+
+	return newColor
 }
 
 // Line that can be drawn on the board
@@ -50,8 +67,8 @@ func NewLine(leftEdge, rightEdge float64, color RGBA, zindex ZIndex) *Line {
 // Returns the color at position blended on top of baseColor
 func (line *Line) ColorAt(position float64, baseColor RGBA) RGBA {
 
-	if line.leftEdge < position && position < line.rightEdge {
-		return line.color
+	if line.leftEdge <= position && position <= line.rightEdge {
+		return blend(line.color, baseColor)
 	}
 
 	return baseColor
@@ -83,11 +100,11 @@ func NewPlayer(isLeft bool, field *GameField) (player *Player) {
 
 	if isLeft {
 		player = &Player{
-			line: NewLine(0, float64(field.Width()/2), RGBA{255, 0, 0, 127}, 10),
+			line: NewLine(0, float64(field.Width()/2), RGBA{255, 0, 0, 200}, 10),
 		}
 	} else {
 		player = &Player{
-			line: NewLine(float64(field.Width()/2), float64(field.Width()), RGBA{0, 255, 0, 127}, 10),
+			line: NewLine(float64(field.Width()/2)+1, float64(field.Width()), RGBA{0, 255, 0, 200}, 10),
 		}
 	}
 

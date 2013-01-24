@@ -19,6 +19,12 @@ type SettingsData struct {
 	// speed of the bus
 	SpiBusSpeedHz uint
 
+	// Path to the GPIO port for the left button
+	LeftButtonPath string
+
+	// Path to the GPIO port for the right button
+	RightButtonPath string
+
 	// Min time for a single frame
 	MinFrameTime float64 `xml:"-"`
 }

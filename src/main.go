@@ -53,13 +53,23 @@ func main() {
 	field.Add(NewSinusoid(field, 1))
 	//field.Add(NewHSLWheel(field, 1))
 
+	leftPlayer := NewPlayer(true, field)
+	field.Add(leftPlayer)
+	rightPlayer := NewPlayer(false, field)
+	field.Add(rightPlayer)
+
 	//display := NewWebDisplay(field)
 	display := NewLedDisplay(field, Settings)
+
+	buttons := NewGpioReader(Settings)
 
 	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 
 	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
 	for _ = range ticks {
+
+		leftPlayer.UpdateVisible(buttons.LeftButton())
+		rightPlayer.UpdateVisible(buttons.RightButton())
 
 		field.Animate(Settings.MinFrameTime)
 		field.RenderTo(display)

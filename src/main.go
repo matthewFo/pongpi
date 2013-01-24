@@ -53,6 +53,8 @@ func main() {
 	field.Add(NewSinusoid(field, 1))
 	//field.Add(NewHSLWheel(field, 1))
 
+	field.Add(NewBall(field))
+
 	leftPlayer := NewPlayer(true, field)
 	field.Add(leftPlayer)
 	rightPlayer := NewPlayer(false, field)

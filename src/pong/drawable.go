@@ -26,16 +26,16 @@ type Drawable interface {
 
 func blend(foreground, background RGBA) (color RGBA) {
 
-	fr,fg,fb,fa := uint(foreground.R), uint(foreground.G), uint(foreground.B), uint(foreground.A)
-	br,bg,bb,ba := uint(background.R), uint(background.G), uint(background.B), uint(background.A)
+	fr, fg, fb, fa := uint(foreground.R), uint(foreground.G), uint(foreground.B), uint(foreground.A)
+	br, bg, bb, ba := uint(background.R), uint(background.G), uint(background.B), uint(background.A)
 
 	opacity := fa
 	backgroundOpacity := (ba * (255 - fa)) >> 8
 
 	newColor := RGBA{
-		uint8((fr * opacity) >> 8 + (br * backgroundOpacity) >> 8),
-		uint8((fg * opacity) >> 8 + (bg * backgroundOpacity) >> 8),
-		uint8((fb * opacity) >> 8 + (bb * backgroundOpacity) >> 8),
+		uint8((fr*opacity)>>8 + (br*backgroundOpacity)>>8),
+		uint8((fg*opacity)>>8 + (bg*backgroundOpacity)>>8),
+		uint8((fb*opacity)>>8 + (bb*backgroundOpacity)>>8),
 		uint8(opacity),
 	}
 
@@ -135,6 +135,67 @@ func (this *Player) ZIndex() ZIndex {
 
 // Animate player
 func (this *Player) Animate(dt float64) bool {
+	return true
+}
+
+// Player that is drawn on the board
+type Ball struct {
+
+	// current position of the ball
+	position float64
+
+	// direction and speed of the ball in leds / second
+	velocity float64
+
+	// max position of ball, min is 0
+	maxPosition float64
+
+	// z position of ball
+	zindex ZIndex
+}
+
+var testBall Drawable = &Ball{}
+
+// Construct a Line
+func NewBall(field *GameField) *Ball {
+
+	return &Ball{
+		position:    0,
+		velocity:    float64(field.Width()) / 2.0,
+		maxPosition: float64(field.Width()),
+		zindex:      100,
+	}
+}
+
+// Returns the color at position blended on top of baseColor
+func (this *Ball) ColorAt(position float64, baseColor RGBA) (color RGBA) {
+
+	distance := math.Abs(position - this.position)
+	if distance < 1 {
+		color = blend(RGBA{255, 255, 255, uint8(distance * 255.0)}, baseColor)
+	} else {
+		color = baseColor
+	}
+
+	return color
+}
+
+// ZIndex of the ball
+func (this *Ball) ZIndex() ZIndex {
+	return this.zindex
+}
+
+// Animate ball
+func (this *Ball) Animate(dt float64) bool {
+	this.position += this.velocity * dt
+	if this.position > this.maxPosition {
+		this.position = this.maxPosition - (this.position - this.maxPosition)
+		this.velocity = -this.velocity
+	} else if this.position < 0 {
+		this.position = -this.position
+		this.velocity = -this.velocity
+	}
+
 	return true
 }
 

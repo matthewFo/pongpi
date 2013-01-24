@@ -161,7 +161,7 @@ func NewBall(field *GameField) *Ball {
 
 	return &Ball{
 		position:    0,
-		velocity:    float64(field.Width()) / 2.0,
+		velocity:    float64(field.Width()) / 3.0,
 		maxPosition: float64(field.Width()),
 		zindex:      100,
 	}
@@ -172,7 +172,7 @@ func (this *Ball) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 
 	distance := math.Abs(position - this.position)
 	if distance < 1 {
-		color = blend(RGBA{255, 255, 255, uint8(distance * 255.0)}, baseColor)
+		color = blend(RGBA{128, 128, 128, uint8((1.0 - distance) * 255.0)}, baseColor)
 	} else {
 		color = baseColor
 	}

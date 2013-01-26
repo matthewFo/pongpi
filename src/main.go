@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"pong"
 	. "pong"
+	. "pong/draw"
 	"runtime/pprof"
 	"time"
 )
@@ -60,20 +61,30 @@ func main() {
 	rightPlayer := NewPlayer(false, field)
 	field.Add(rightPlayer)
 
-	//display := NewWebDisplay(field)
-	display := NewLedDisplay(field, Settings)
+	display := NewWebDisplay(field)
+	//display := NewLedDisplay(field, Settings)
 
 	buttons := NewGpioReader(Settings)
 
 	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 
+	var curTime time.Time
+	var prevTime time.Time
+
+	prevTime = time.Now()
+	curTime = time.Now()
+
 	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
 	for _ = range ticks {
+
+		curTime = time.Now()
+		dt := curTime.Sub(prevTime).Seconds()
+		prevTime = curTime
 
 		leftPlayer.UpdateVisible(buttons.LeftButton())
 		rightPlayer.UpdateVisible(buttons.RightButton())
 
-		field.Animate(Settings.MinFrameTime)
+		field.Animate(dt) //Settings.MinFrameTime)
 		field.RenderTo(display)
 	}
 }

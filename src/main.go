@@ -68,11 +68,8 @@ func main() {
 
 	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 
-	var curTime time.Time
-	var prevTime time.Time
-
-	prevTime = time.Now()
-	curTime = time.Now()
+	curTime := time.Now()
+	prevTime := curTime
 
 	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
 	for _ = range ticks {
@@ -84,7 +81,7 @@ func main() {
 		leftPlayer.UpdateVisible(buttons.LeftButton())
 		rightPlayer.UpdateVisible(buttons.RightButton())
 
-		field.Animate(dt) //Settings.MinFrameTime)
+		field.Animate(dt)
 		field.RenderTo(display)
 	}
 }

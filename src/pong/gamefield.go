@@ -54,7 +54,7 @@ func (field *GameField) Add(addDrawable Drawable) {
 // Determines the color at the given position
 func (field *GameField) ColorAt(position float64) RGBA {
 
-	color := RGBA{}
+	color := RGBA{0, 0, 0, 255}
 
 	for curElement := field.drawables.Front(); curElement != nil; curElement = curElement.Next() {
 

@@ -11,6 +11,7 @@ import (
 	"pong"
 	. "pong"
 	. "pong/draw"
+	"runtime"
 	"runtime/pprof"
 	"time"
 )
@@ -20,7 +21,8 @@ var (
 	field *pong.GameField
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")
+var webDisplay = flag.Bool("webdisplay", false, "use webhost on localhost:8080 for the display")
 
 // Application entry point
 func main() {
@@ -28,8 +30,8 @@ func main() {
 	Settings.Read()
 
 	flag.Parse()
-	if *cpuprofile != "" {
-		f, err := os.Create(*cpuprofile)
+	if *cpuProfile != "" {
+		f, err := os.Create(*cpuProfile)
 		if err != nil {
 			panic(err)
 		}
@@ -50,23 +52,31 @@ func main() {
 		fmt.Println("Start profiling")
 	}
 
-	field = NewGameField(64)
-	field.Add(NewSinusoid(field, 1))
-	//field.Add(NewHSLWheel(field, 1))
+	log.Print("MinFrameTime is ", Settings.MinFrameTime)
 
-	field.Add(NewBall(field))
-
-	leftPlayer := NewPlayer(true, field)
-	field.Add(leftPlayer)
-	rightPlayer := NewPlayer(false, field)
-	field.Add(rightPlayer)
-
-	display := NewWebDisplay(field)
-	//display := NewLedDisplay(field, Settings)
+	var display Display
+	if *webDisplay || runtime.GOOS == "windows" {
+		display = NewWebDisplay(Settings)
+	} else {
+		display = NewLedDisplay(Settings)
+	}
 
 	buttons := NewGpioReader(Settings)
 
-	log.Print("MinFrameTime is ", Settings.MinFrameTime)
+	// should intro and game(play / dead / win) be different states in statemachine?
+
+	// loop forever
+	for {
+		//runIntro(buttons, display)
+		runGame(buttons, display)
+	}
+}
+
+// Run an intro animation
+func runIntro(buttons *GpioReader, display Display) {
+
+	field := NewGameField(Settings.LedCount)
+	field.Add(NewSinusoid(field, 1))
 
 	curTime := time.Now()
 	prevTime := curTime
@@ -74,9 +84,47 @@ func main() {
 	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
 	for _ = range ticks {
 
-		curTime = time.Now()
+		prevTime, curTime = curTime, time.Now()
 		dt := curTime.Sub(prevTime).Seconds()
-		prevTime = curTime
+
+		if buttons.LeftButton() || buttons.RightButton() {
+			return
+		}
+
+		field.Animate(dt)
+		field.RenderTo(display)
+	}
+}
+
+// Run the actual game
+func runGame(buttons *GpioReader, display Display) {
+
+	field := NewGameField(64)
+	field.Add(NewBall(field))
+
+	leftPlayer := NewPlayer(true, field)
+	field.Add(leftPlayer)
+	rightPlayer := NewPlayer(false, field)
+	field.Add(rightPlayer)
+
+	curTime := time.Now()
+	prevTime := curTime
+
+	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	for _ = range ticks {
+
+		prevTime, curTime = curTime, time.Now()
+		dt := curTime.Sub(prevTime).Seconds()
+
+		// game play (normal ball is moving gameplay)
+		// death (a player has just scored)
+		//		showing current score
+		//		explosion animation
+		//		after 1 second cool down, losing player presses key to go back to playing state
+		//  should death be a substate of intro, intro could just be it's own
+
+		// for intro, want seperate field, with different animations going
+		// game play and death can share a field
 
 		leftPlayer.UpdateVisible(buttons.LeftButton())
 		rightPlayer.UpdateVisible(buttons.RightButton())

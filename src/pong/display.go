@@ -23,9 +23,9 @@ type WebDisplay struct {
 var testWebDisplay Display = &WebDisplay{}
 
 // Create a new WebDisplay
-func NewWebDisplay(field *GameField) *WebDisplay {
+func NewWebDisplay(settings SettingsData) *WebDisplay {
 	display := &WebDisplay{
-		previousRender: make([]RGBA, int(field.Width())),
+		previousRender: make([]RGBA, settings.LedCount),
 	}
 
 	go display.LaunchWebServer()
@@ -60,7 +60,7 @@ func htmlPageHandler(w http.ResponseWriter, r *http.Request) {
         }
         setTimeout(reloadpic, 100)
 	--></script></head>
-	<body><img id="gameBoard" src="image/test.png"/></body>
+	<body><img id="gameBoard" src="image/test.png" height="24" width="1024"/></body>
 </html>`)
 
 }
@@ -75,8 +75,8 @@ func (this *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := this.previousRender
 
-	spacing := 2
-	width, height := len(data), 8
+	spacing := 1
+	width, height := len(data), 1
 	image := image.NewRGBA(image.Rect(0, 0, width*spacing, height))
 
 	for dataIndex := 0; dataIndex < width; dataIndex++ {
@@ -101,11 +101,11 @@ type LedDisplay struct {
 var testLedDisplay Display = &LedDisplay{}
 
 // Construct an LedDisplay
-func NewLedDisplay(field *GameField, settings SettingsData) *LedDisplay {
+func NewLedDisplay(settings SettingsData) *LedDisplay {
 	return &LedDisplay{
 		bus:            NewSpiBus(settings.SpiFilePath, settings.SpiBusSpeedHz),
-		expectedColors: field.Width(),
-		byteData:       make([]byte, 4+field.Width()*3+4), // +8 is for the null bytes on front and end of data
+		expectedColors: settings.LedCount,
+		byteData:       make([]byte, 4+settings.LedCount*3+4), // +8 is for the null bytes on front and end of data
 	}
 }
 

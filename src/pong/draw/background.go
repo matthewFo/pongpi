@@ -50,7 +50,6 @@ func (this *Sinusoid) lookup(fieldPercentage float64) uint8 {
 	if fieldPercentage > 1 {
 		fieldPercentage -= 1
 	}
-
 	return this.sineLookup[int(fieldPercentage*256)]
 }
 

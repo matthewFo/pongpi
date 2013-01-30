@@ -14,7 +14,7 @@ type Line struct {
 	zindex ZIndex
 }
 
-var testLine Drawable = &Line{}
+var _ Drawable = &Line{}
 
 // Construct a Line
 func NewLine(leftEdge, rightEdge float64, color RGBA, zindex ZIndex) *Line {

@@ -21,7 +21,7 @@ type Ball struct {
 	zindex ZIndex
 }
 
-var testBall Drawable = &Ball{}
+var _ Drawable = &Ball{}
 
 // Construct a Line
 func NewBall(field *GameField) *Ball {

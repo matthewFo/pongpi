@@ -19,7 +19,7 @@ type Sinusoid struct {
 	sineLookup []uint8
 }
 
-var testSinusoid Drawable = &Sinusoid{}
+var _ Drawable = &Sinusoid{}
 
 // Construct a Sinusoid
 func NewSinusoid(field *GameField, zindex ZIndex) *Sinusoid {
@@ -67,12 +67,12 @@ func (this *Sinusoid) ColorAt(position float64, baseColor RGBA) RGBA {
 	}
 }
 
-// ZIndex of line
+// ZIndex
 func (this *Sinusoid) ZIndex() ZIndex {
 	return this.zindex
 }
 
-// Animate line
+// Animate
 func (this *Sinusoid) Animate(dt float64) bool {
 
 	this.offsets[0] += dt * 0.27
@@ -105,7 +105,7 @@ type HSLWheel struct {
 	zindex ZIndex
 }
 
-var testHSLWheel Drawable = &HSLWheel{}
+var _ Drawable = &HSLWheel{}
 
 // Construct an HSLWheel
 func NewHSLWheel(field *GameField, zindex ZIndex) *HSLWheel {
@@ -176,12 +176,12 @@ func hslToRGB(hue, saturation, luminosity float64) RGBA {
 	return RGBA{red, green, blue, 255}
 }
 
-// ZIndex of line
+// ZIndex
 func (this *HSLWheel) ZIndex() ZIndex {
 	return this.zindex
 }
 
-// Animate line
+// Animate
 func (this *HSLWheel) Animate(dt float64) bool {
 
 	this.hue += dt * 0.1
@@ -191,6 +191,73 @@ func (this *HSLWheel) Animate(dt float64) bool {
 	}
 
 	//log.Print("Hue", this.hue)
+
+	return true
+}
+
+// Represents a background animation of moving through the HSL color space
+type StepFunction struct {
+
+	// width of step function
+	center float64
+
+	// scale of the steps
+	scale float64
+
+	// 255.0 / scale
+	scaleInverse float64
+
+	// time offset
+	offset float64
+
+	// color at max alpha
+	baseColor RGBA
+
+	zindex ZIndex
+}
+
+var _ Drawable = &StepFunction{}
+
+// Construct a new StepFunction
+func NewStepFunction(center, stepSize float64, baseColor RGBA, zindex ZIndex) *StepFunction {
+	return &StepFunction{
+		center:       center,
+		scale:        stepSize,
+		scaleInverse: 255.0 / stepSize,
+		offset:       0.0,
+		baseColor:    baseColor,
+		zindex:       zindex,
+	}
+}
+
+// Returns the color at position blended on top of baseColor
+func (this *StepFunction) ColorAt(position float64, baseColor RGBA) RGBA {
+
+	position = math.Abs(position - this.center)
+
+	alpha := uint8(math.Mod(position+this.offset, this.scale) * this.scaleInverse)
+
+	return RGBA{
+		this.baseColor.R,
+		this.baseColor.G,
+		this.baseColor.B,
+		alpha,
+	}
+}
+
+// ZIndex
+func (this *StepFunction) ZIndex() ZIndex {
+	return this.zindex
+}
+
+// Animate
+func (this *StepFunction) Animate(dt float64) bool {
+
+	this.offset += dt * 10.0
+
+	if this.offset > this.scale {
+		this.offset -= this.scale
+	}
 
 	return true
 }

@@ -237,12 +237,14 @@ func (this *StepFunction) ColorAt(position float64, baseColor RGBA) RGBA {
 
 	alpha := uint8(math.Mod(position+this.offset, this.scale) * this.scaleInverse)
 
-	return RGBA{
+	color := RGBA{
 		this.baseColor.R,
 		this.baseColor.G,
 		this.baseColor.B,
 		alpha,
 	}
+
+	return color.BlendWith(baseColor)
 }
 
 // ZIndex
@@ -253,7 +255,7 @@ func (this *StepFunction) ZIndex() ZIndex {
 // Animate
 func (this *StepFunction) Animate(dt float64) bool {
 
-	this.offset += dt * 10.0
+	this.offset += dt * 20.0
 
 	if this.offset > this.scale {
 		this.offset -= this.scale

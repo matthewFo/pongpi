@@ -82,7 +82,9 @@ func (this *WebDisplay) imageHandler(w http.ResponseWriter, r *http.Request) {
 	for dataIndex := 0; dataIndex < width; dataIndex++ {
 
 		for y := 0; y < height; y++ {
-			image.Set(dataIndex*spacing, y, color.RGBA(data[dataIndex]))
+			displayedColor := color.RGBA(data[dataIndex])
+			displayedColor.A = 255
+			image.Set(dataIndex*spacing, y, displayedColor)
 		}
 	}
 

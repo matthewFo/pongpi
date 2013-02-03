@@ -52,7 +52,7 @@ type Player struct {
 	line *Line
 
 	// if the player is current holding down the button
-	visible bool
+	paddleActive bool
 }
 
 var testPlayer Drawable = &Player{}
@@ -62,26 +62,26 @@ func NewPlayer(isLeft bool, field *GameField) (player *Player) {
 
 	if isLeft {
 		player = &Player{
-			line: NewLine(0, float64(field.Width()/2), RGBA{255, 0, 0, 200}, 10),
+			line: NewLine(0, 0.75, RGBA{255, 0, 0, 200}, 10),
 		}
 	} else {
 		player = &Player{
-			line: NewLine(float64(field.Width()/2)+1, float64(field.Width()), RGBA{0, 255, 0, 200}, 10),
+			line: NewLine(float64(field.Width())-1.75, float64(field.Width())-1.0, RGBA{0, 255, 0, 200}, 10),
 		}
 	}
 
 	return
 }
 
-// Set if the player is visible or not
-func (this *Player) UpdateVisible(visible bool) {
-	this.visible = visible
+// Set if the player is holding down the paddle or not
+func (this *Player) UpdatePaddleActive(paddleActive bool) {
+	this.paddleActive = paddleActive
 }
 
 // Returns the color at position blended on top of baseColor
 func (this *Player) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 
-	if !this.visible {
+	if !this.paddleActive {
 		color = baseColor
 	} else {
 		color = this.line.ColorAt(position, baseColor)

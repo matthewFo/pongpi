@@ -8,17 +8,11 @@ import (
 	_ "math"
 	"os"
 	"os/signal"
-	"pong"
 	. "pong"
 	. "pong/draw"
 	"runtime"
 	"runtime/pprof"
 	"time"
-)
-
-// Global variables
-var (
-	field *pong.GameField
 )
 
 var cpuProfile = flag.String("cpuprofile", "", "write cpu profile to file")
@@ -100,8 +94,10 @@ func runIntro(buttons *GpioReader, display Display) {
 func runGame(buttons *GpioReader, display Display) {
 
 	field := NewGameField(64)
-	//field.Add(NewBall(field))
 	field.Add(NewStepFunction(32.0, 32.0, RGBA{100, 0, 0, 255}, 1))
+
+	ball := NewBall(field)
+	field.Add(ball)
 
 	leftPlayer := NewPlayer(true, field)
 	field.Add(leftPlayer)
@@ -127,10 +123,18 @@ func runGame(buttons *GpioReader, display Display) {
 		// for intro, want seperate field, with different animations going
 		// game play and death can share a field
 
-		leftPlayer.UpdateVisible(buttons.LeftButton())
-		rightPlayer.UpdateVisible(buttons.RightButton())
+		leftPlayer.UpdatePaddleActive(buttons.LeftButton())
+		rightPlayer.UpdatePaddleActive(buttons.RightButton())
+		//leftPlayer.UpdatePaddleActive(true)
+		//rightPlayer.UpdatePaddleActive(true)
 
 		field.Animate(dt)
+
+		playerMissed := ball.MissedByPlayer(leftPlayer, rightPlayer)
+		if playerMissed != nil {
+			ball.ResetPosition(field)
+		}
+
 		field.RenderTo(display)
 	}
 }

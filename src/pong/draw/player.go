@@ -62,7 +62,7 @@ func NewPlayer(isLeft bool, field *GameField) (player *Player) {
 
 	if isLeft {
 		player = &Player{
-			line: NewLine(0, 0.75, RGBA{255, 0, 0, 200}, 10),
+			line: NewLine(0, 0.75, RGBA{0, 0, 255, 200}, 10),
 		}
 	} else {
 		player = &Player{

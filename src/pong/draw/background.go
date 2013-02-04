@@ -255,7 +255,7 @@ func (this *StepFunction) ZIndex() ZIndex {
 // Animate
 func (this *StepFunction) Animate(dt float64) bool {
 
-	this.offset += dt * 20.0
+	this.offset += dt * 40.0
 
 	if this.offset > this.scale {
 		this.offset -= this.scale

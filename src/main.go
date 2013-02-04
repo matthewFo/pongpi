@@ -94,7 +94,7 @@ func runIntro(buttons *GpioReader, display Display) {
 func runGame(buttons *GpioReader, display Display) {
 
 	field := NewGameField(64)
-	field.Add(NewStepFunction(32.0, 32.0, RGBA{100, 0, 0, 255}, 1))
+	//field.Add(NewStepFunction(32.0, 32.0, RGBA{100, 0, 0, 255}, 1))
 
 	ball := NewBall(field)
 	field.Add(ball)

@@ -34,7 +34,7 @@ func NewBall(field *GameField) *Ball {
 		position:    0.0,
 		velocity:    float64(field.Width()) / 3.0,
 		maxPosition: float64(field.Width() - 1),
-		tailLength:  5.0,
+		tailLength:  12.0,
 		zindex:      100,
 	}
 }
@@ -85,7 +85,7 @@ func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player) (missedPlayer 
 		} else if leftPlayer.paddleActive {
 			// player hit the ball back
 			this.position = leftPlayer.line.rightEdge + (leftPlayer.line.rightEdge - this.position)
-			this.velocity = -this.velocity
+			this.velocity = this.velocity * -1.05
 		}
 	} else if this.velocity > 0 && this.position > rightPlayer.line.leftEdge {
 
@@ -95,7 +95,7 @@ func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player) (missedPlayer 
 		} else if rightPlayer.paddleActive {
 			// player hit the ball back
 			this.position = rightPlayer.line.leftEdge - (this.position - rightPlayer.line.leftEdge)
-			this.velocity = -this.velocity
+			this.velocity = this.velocity * -1.05 
 		}
 	}
 

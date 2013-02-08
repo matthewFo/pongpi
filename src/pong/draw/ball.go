@@ -77,25 +77,25 @@ func (this *Ball) Animate(dt float64) bool {
 // Check if the ball went past a player, returns nil or the player that missed the ball
 func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player) (missedPlayer *Player) {
 
-	if this.velocity < 0 && this.position < leftPlayer.line.rightEdge {
+	if this.velocity < 0 && this.position < leftPlayer.paddleRight {
 
-		if !leftPlayer.paddleActive && this.position < leftPlayer.line.leftEdge {
+		if !leftPlayer.paddleActive && this.position < leftPlayer.paddleLeft {
 			// player missed the ball
 			return leftPlayer
 		} else if leftPlayer.paddleActive {
 			// player hit the ball back
-			this.position = leftPlayer.line.rightEdge + (leftPlayer.line.rightEdge - this.position)
-			this.velocity = this.velocity * -1.05
+			this.position = leftPlayer.paddleRight + (leftPlayer.paddleRight - this.position)
+			this.velocity = this.velocity * -1.03
 		}
-	} else if this.velocity > 0 && this.position > rightPlayer.line.leftEdge {
+	} else if this.velocity > 0 && this.position > rightPlayer.paddleLeft {
 
-		if !rightPlayer.paddleActive && this.position > rightPlayer.line.rightEdge {
+		if !rightPlayer.paddleActive && this.position > rightPlayer.paddleRight {
 			// player missed the ball
 			return rightPlayer
 		} else if rightPlayer.paddleActive {
 			// player hit the ball back
-			this.position = rightPlayer.line.leftEdge - (this.position - rightPlayer.line.leftEdge)
-			this.velocity = this.velocity * -1.05 
+			this.position = rightPlayer.paddleLeft - (this.position - rightPlayer.paddleLeft)
+			this.velocity = this.velocity * -1.03
 		}
 	}
 

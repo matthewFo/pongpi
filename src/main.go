@@ -99,9 +99,9 @@ func runGame(buttons *GpioReader, display Display) {
 	ball := NewBall(field)
 	field.Add(ball)
 
-	leftPlayer := NewPlayer(true, field)
+	leftPlayer := NewPlayer(true, 5.0, field)
 	field.Add(leftPlayer)
-	rightPlayer := NewPlayer(false, field)
+	rightPlayer := NewPlayer(false, 4.0, field)
 	field.Add(rightPlayer)
 
 	curTime := time.Now()
@@ -133,6 +133,7 @@ func runGame(buttons *GpioReader, display Display) {
 		playerMissed := ball.MissedByPlayer(leftPlayer, rightPlayer)
 		if playerMissed != nil {
 			ball.ResetPosition(field)
+			playerMissed.DecreaseLife(0.5)
 		}
 
 		field.RenderTo(display)

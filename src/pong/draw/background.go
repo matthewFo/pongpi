@@ -263,3 +263,63 @@ func (this *StepFunction) Animate(dt float64) bool {
 
 	return true
 }
+
+// Represents a background animation of moving through the HSL color space
+type Countdown struct {
+
+	// total time counted so far
+	time float64
+
+	// length of entire countdown
+	totalTime float64
+}
+
+var _ Drawable = &Countdown{}
+
+// Construct a new StepFunction
+func NewCountdown(field *GameField, totalTime float64) *Countdown {
+	return &Countdown{
+		time:      0.0,
+		totalTime: totalTime,
+	}
+}
+
+// Returns the color at position blended on top of baseColor
+func (this *Countdown) ColorAt(position float64, baseColor RGBA) RGBA {
+
+	greenFactor := this.time / this.totalTime
+	redFactor := 1.0 - greenFactor
+
+	if greenFactor > 0.8 {
+		return baseColor
+	}
+
+	return RGBA{
+		uint8(redFactor * 255),
+		uint8(greenFactor * 255),
+		0,
+		255,
+	}
+}
+
+// ZIndex
+func (this *Countdown) ZIndex() ZIndex {
+	return 0
+}
+
+// Animate
+func (this *Countdown) Animate(dt float64) bool {
+
+	this.time += dt
+
+	if this.time >= this.totalTime {
+		this.time = this.totalTime
+	}
+
+	return true
+}
+
+// Amount of time remaining in countdown
+func (this *Countdown) TimeRemaining() float64 {
+	return this.totalTime - this.time
+}

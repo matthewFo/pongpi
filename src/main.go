@@ -61,13 +61,19 @@ func main() {
 
 	// loop forever
 	for {
-		//runIntro(buttons, display)
-		runGame(buttons, display)
+		runIntro(buttons, display)
+		runOpening(display)
+		winner := runGame(buttons, display)
+		runClosing(buttons, display, winner)
 	}
 }
 
 // Run an intro animation
 func runIntro(buttons *GpioReader, display Display) {
+
+	if runtime.GOOS == "windows" {
+		return
+	}
 
 	field := NewGameField(Settings.LedCount)
 	field.Add(NewSinusoid(field, 1))
@@ -90,8 +96,34 @@ func runIntro(buttons *GpioReader, display Display) {
 	}
 }
 
+// Run an animation to start the game
+func runOpening(display Display) {
+
+	field := NewGameField(Settings.LedCount)
+	countDown := NewCountdown(field, 2)
+	field.Add(countDown)
+
+	curTime := time.Now()
+	prevTime := curTime
+
+	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	for _ = range ticks {
+
+		prevTime, curTime = curTime, time.Now()
+		dt := curTime.Sub(prevTime).Seconds()
+
+		field.Animate(dt)
+
+		if countDown.TimeRemaining() <= 0 {
+			return
+		}
+
+		field.RenderTo(display)
+	}
+}
+
 // Run the actual game
-func runGame(buttons *GpioReader, display Display) {
+func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
 
 	field := NewGameField(64)
 	//field.Add(NewStepFunction(32.0, 32.0, RGBA{100, 0, 0, 255}, 1))
@@ -113,16 +145,6 @@ func runGame(buttons *GpioReader, display Display) {
 		prevTime, curTime = curTime, time.Now()
 		dt := curTime.Sub(prevTime).Seconds()
 
-		// game play (normal ball is moving gameplay)
-		// death (a player has just scored)
-		//		showing current score
-		//		explosion animation
-		//		after 1 second cool down, losing player presses key to go back to playing state
-		//  should death be a substate of intro, intro could just be it's own
-
-		// for intro, want seperate field, with different animations going
-		// game play and death can share a field
-
 		leftPlayer.UpdatePaddleActive(buttons.LeftButton())
 		rightPlayer.UpdatePaddleActive(buttons.RightButton())
 		//leftPlayer.UpdatePaddleActive(true)
@@ -133,9 +155,19 @@ func runGame(buttons *GpioReader, display Display) {
 		playerMissed := ball.MissedByPlayer(leftPlayer, rightPlayer, Settings.BounceVelocityIncrease)
 		if playerMissed != nil {
 			ball.ResetPosition(field)
-			playerMissed.DecreaseLife(0.5)
+			if playerMissed.DecreaseLife(0.5) {
+				return playerMissed == leftPlayer
+			}
 		}
 
 		field.RenderTo(display)
 	}
+
+	return false
+}
+
+// Run an animation showing the winner
+func runClosing(buttons *GpioReader, display Display, winner bool) {
+
+	return
 }

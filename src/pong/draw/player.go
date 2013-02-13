@@ -135,11 +135,14 @@ func (this *Player) Animate(dt float64) bool {
 }
 
 // Decrease the amount of life remaining
-func (this *Player) DecreaseLife(dt float64) {
+func (this *Player) DecreaseLife(dt float64) bool {
 	this.life -= dt
 	if this.life < 0 {
 		this.life = 0
+		return true
 	}
+
+	return false
 }
 
 func min(lhs, rhs float64) float64 {

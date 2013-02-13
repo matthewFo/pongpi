@@ -34,7 +34,7 @@ func NewBall(field *GameField) *Ball {
 		position:    0.0,
 		velocity:    float64(field.Width()) / 3.0,
 		maxPosition: float64(field.Width() - 1),
-		tailLength:  12.0,
+		tailLength:  8.0,
 		zindex:      100,
 	}
 }

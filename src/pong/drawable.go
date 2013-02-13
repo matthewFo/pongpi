@@ -27,7 +27,7 @@ type Drawable interface {
 func (foreground RGBA) BlendWith(background RGBA) (color RGBA) {
 
 	fr, fg, fb, fa := uint(foreground.R), uint(foreground.G), uint(foreground.B), uint(foreground.A)
-	br, bg, bb, ba := uint(background.R), uint(background.G), uint(background.B), uint(background.A)
+	br, bg, bb, ba := uint(background.R), uint(background.G), uint(background.B), uint(255) // want background to be fully colored
 
 	opacity := fa
 	backgroundOpacity := (ba * (255 - fa)) >> 8

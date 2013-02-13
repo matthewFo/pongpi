@@ -6,11 +6,17 @@ import (
 
 // Player that is drawn on the board
 type Player struct {
-	start, end              float64
+
+	// start and end of life bar, start is at 0 life, end is full life
+	start, end float64
+
+	// bounds of the paddle, used for collision detection
 	paddleLeft, paddleRight float64
 
+	// colors that the different parts of the player are drawn
 	lifeColor, paddleColor RGBA
 
+	// zindex of player
 	zindex ZIndex
 
 	// if the player is current holding down the button
@@ -18,7 +24,13 @@ type Player struct {
 
 	// amount of life left
 	life, lifeTotal float64
+
+	// current amount of animation, goes from 0 to 1 and back
+	lifeAnimation float64
 }
+
+// rate at which lifeAnimation changes
+var lifeAnimationRate float64 = 0.5
 
 var testPlayer Drawable = &Player{}
 
@@ -27,7 +39,7 @@ func NewPlayer(isLeft bool, lifeTime float64, field *GameField) (player *Player)
 
 	if isLeft {
 		player = &Player{
-			lifeColor:   RGBA{0, 0, 255, 50},
+			lifeColor:   RGBA{0, 0, 255, 150},
 			paddleColor: RGBA{0, 0, 255, 255},
 			zindex:      10,
 			start:       0.0,
@@ -39,7 +51,7 @@ func NewPlayer(isLeft bool, lifeTime float64, field *GameField) (player *Player)
 		}
 	} else {
 		player = &Player{
-			lifeColor:   RGBA{0, 255, 0, 50},
+			lifeColor:   RGBA{0, 255, 0, 150},
 			paddleColor: RGBA{0, 255, 0, 255},
 			zindex:      10,
 			start:       float64(field.Width()) - 1.0,
@@ -73,8 +85,20 @@ func (this *Player) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 
 	if this.paddleActive && position == this.start {
 		color = this.paddleColor.BlendWith(baseColor)
-	} else if this.paddleActive && left <= position && position <= right {
-		color = this.lifeColor.BlendWith(baseColor)
+	} else if left <= position && position <= right {
+
+		// animation is
+		var alphaAmount = this.lifeAnimation
+		if alphaAmount > 0.5 {
+			alphaAmount = 1.0 - alphaAmount
+		}
+		if this.paddleActive {
+			alphaAmount += 0.5
+		}
+
+		lifeColor := RGBA{this.lifeColor.R, this.lifeColor.G, this.lifeColor.B, uint8(float64(this.lifeColor.A) * alphaAmount)}
+
+		color = lifeColor.BlendWith(baseColor)
 	} else {
 		color = baseColor
 	}
@@ -89,6 +113,11 @@ func (this *Player) ZIndex() ZIndex {
 
 // Animate player
 func (this *Player) Animate(dt float64) bool {
+
+	this.lifeAnimation += dt * lifeAnimationRate
+	if this.lifeAnimation > 1.0 {
+		this.lifeAnimation -= 1.0
+	}
 
 	if this.paddleActive {
 		this.life -= dt

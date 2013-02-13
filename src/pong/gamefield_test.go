@@ -4,48 +4,12 @@ import (
 	"testing"
 )
 
-// Adding to field should keep things in order
-func Test_GameField_Add(t *testing.T) {
-	field := NewGameField(100)
-
-	item0 := NewLine(0, 100, Color{255, 255, 255, 255}, 0)
-	item1 := NewLine(0, 100, Color{255, 255, 255, 255}, 1)
-	item2 := NewLine(0, 100, Color{255, 255, 255, 255}, 2)
-	item3 := NewLine(0, 100, Color{255, 255, 255, 255}, 3)
-	item4 := NewLine(0, 100, Color{255, 255, 255, 255}, 4)
-
-	field.Add(item0)
-	if !field.IsValid() {
-		t.Fatal("Invalid field after item0")
-	}
-	field.Add(item2)
-	if !field.IsValid() {
-		t.Fatal("Invalid field after item2")
-	}
-	field.Add(item1)
-	if !field.IsValid() {
-		t.Fatal("Invalid field after item1")
-	}
-	field.Add(item3)
-	if !field.IsValid() {
-		t.Fatal("Invalid field after item3")
-	}
-	field.Add(item4)
-	if !field.IsValid() {
-		t.Fatal("Invalid field after item4")
-	}
-	field.Add(item4)
-	if !field.IsValid() {
-		t.Fatal("Invalid field after duplicate item4")
-	}
-}
-
 // Create a Drawable that will kill itself after maxLife amount of time
 type CountdownDrawable struct {
 	maxLife, curLife float64
 }
 
-func (countdown *CountdownDrawable) ColorAt(position float64, baseColor Color) Color {
+func (countdown *CountdownDrawable) ColorAt(position float64, baseColor RGBA) RGBA {
 	return baseColor
 }
 

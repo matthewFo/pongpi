@@ -22,8 +22,20 @@ type SettingsData struct {
 	// Path to the GPIO port for the left button
 	LeftButtonPath string
 
+	// GPIO port for left
+	LeftButtonGpioPort string
+
 	// Path to the GPIO port for the right button
 	RightButtonPath string
+
+	// GPIO port for right
+	RightButtonGpioPort string
+
+	// Amount of speedup
+	BounceVelocityIncrease float64
+
+	// Amount of life each player starts with
+	LifeInSeconds float64
 
 	// Min time for a single frame
 	MinFrameTime float64 `xml:"-"`

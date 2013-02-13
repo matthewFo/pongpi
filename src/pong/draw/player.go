@@ -1,7 +1,6 @@
 package draw
 
 import (
-	"log"
 	. "pong"
 )
 
@@ -96,16 +95,12 @@ func (this *Player) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 		if this.paddleActive {
 			alphaAmount += 0.5
 		}
-		alphaAmount += 0.25
+		alphaAmount += 0.2
 		if alphaAmount > 1.0 {
 			alphaAmount = 1.0
 		}
 
 		lifeColor := RGBA{this.lifeColor.R, this.lifeColor.G, this.lifeColor.B, uint8(float64(this.lifeColor.A) * alphaAmount)}
-
-		if position == 0 {
-			log.Println(this.lifeColor.A, alphaAmount, lifeColor.A)
-		}
 
 		color = lifeColor.BlendWith(baseColor)
 	} else {

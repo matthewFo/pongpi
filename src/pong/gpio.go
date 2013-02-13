@@ -5,6 +5,7 @@ package pong
 import (
 	"log"
 	"os"
+	"os/exec"
 )
 
 // Type representing a bus connection
@@ -24,11 +25,29 @@ func NewGpioReader(settings SettingsData) *GpioReader {
 	}
 
 	var err error
+	_, err = os.Stat(settings.LeftButtonPath)
+	log.Println("Checking for ", settings.LeftButtonPath, err)
+	if err != nil && os.IsNotExist(err) {
+		cmd := exec.Command("/usr/local/bin/gpio", "export", "22", "in")
+		err = cmd.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	reader.leftButtonFile, err = os.Open(settings.LeftButtonPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	_, err = os.Stat(settings.RightButtonPath)
+	log.Println("Checking for ", settings.RightButtonPath, err)
+	if err != nil && os.IsNotExist(err) {
+		cmd := exec.Command("/usr/local/bin/gpio", "export", "27", "in")
+		err = cmd.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	reader.rightButtonFile, err = os.Open(settings.RightButtonPath)
 	if err != nil {
 		log.Fatal(err)

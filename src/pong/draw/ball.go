@@ -21,6 +21,9 @@ type Ball struct {
 	// the length of the tail of the ball
 	tailLength float64
 
+	// if the ball should be hidden this frame or not
+	hideBall bool
+
 	// z position of ball
 	zindex ZIndex
 }
@@ -52,7 +55,7 @@ func (this *Ball) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 	}
 
 	// Add ball itself as white
-	if distance < 1 {
+	if !this.hideBall && distance < 1 {
 		color = RGBA{255, 255, 255, uint8((1.0 - distance) * 255.0)}
 		color = color.BlendWith(baseColor)
 	} else {
@@ -104,5 +107,22 @@ func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player, bounceFactor f
 
 // Reset the position to the middle of the field
 func (this *Ball) ResetPosition(field *GameField) {
-	this.position = float64(field.Width()) / 2.0
+
+	startingOffset := 0.25
+	if this.velocity < 0 {
+		startingOffset = 0.75
+	}
+
+	this.position = float64(field.Width()) * startingOffset
+}
+
+// Check if the player is doing an offensive hide
+func (this *Ball) UpdateOffensiveHide(leftPlayer, rightPlayer *Player) {
+
+	this.hideBall = false
+	if this.velocity < 0 && this.position < this.maxPosition/2.0 && rightPlayer.paddleActive {
+		this.hideBall = true
+	} else if this.velocity > 0 && this.position > this.maxPosition/2.0 && leftPlayer.paddleActive {
+		this.hideBall = true
+	}
 }

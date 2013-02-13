@@ -152,6 +152,8 @@ func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
 
 		field.Animate(dt)
 
+		ball.UpdateOffensiveHide(leftPlayer, rightPlayer)
+
 		playerMissed := ball.MissedByPlayer(leftPlayer, rightPlayer, Settings.BounceVelocityIncrease)
 		if playerMissed != nil {
 			ball.ResetPosition(field)
@@ -169,5 +171,25 @@ func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
 // Run an animation showing the winner
 func runClosing(buttons *GpioReader, display Display, winner bool) {
 
-	return
+	field := NewGameField(Settings.LedCount)
+	winnerDisplay := NewWinner(field, winner, 4)
+	field.Add(winnerDisplay)
+
+	curTime := time.Now()
+	prevTime := curTime
+
+	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	for _ = range ticks {
+
+		prevTime, curTime = curTime, time.Now()
+		dt := curTime.Sub(prevTime).Seconds()
+
+		field.Animate(dt)
+
+		if winnerDisplay.TimeRemaining() <= 0 {
+			return
+		}
+
+		field.RenderTo(display)
+	}
 }

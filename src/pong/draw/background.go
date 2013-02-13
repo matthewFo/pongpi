@@ -1,6 +1,7 @@
 package draw
 
 import (
+	"log"
 	"math"
 	. "pong"
 )
@@ -321,5 +322,81 @@ func (this *Countdown) Animate(dt float64) bool {
 
 // Amount of time remaining in countdown
 func (this *Countdown) TimeRemaining() float64 {
+	return this.totalTime - this.time
+}
+
+// Represents a background animation of moving through the HSL color space
+type Winner struct {
+
+	// Bounds of color to draw
+	left, right float64
+
+	// color to be flashed on / off
+	color RGBA
+
+	// total time counted so far
+	time float64
+
+	// length of entire countdown
+	totalTime float64
+}
+
+var _ Drawable = &Winner{}
+
+// Construct a new StepFunction
+func NewWinner(field *GameField, leftWon bool, totalTime float64) *Winner {
+
+	if !leftWon {
+		return &Winner{
+			time:      0.0,
+			totalTime: totalTime,
+			left:      0,
+			right:     (float64(field.Width()) / 2.0) - 1,
+			color:     RGBA{0, 0, 255, 255},
+		}
+	} else {
+		return &Winner{
+			time:      0.0,
+			totalTime: totalTime,
+			left:      (float64(field.Width()) / 2.0),
+			right:     float64(field.Width()) - 1,
+			color:     RGBA{0, 255, 0, 255},
+		}
+	}
+
+	return nil
+}
+
+// Returns the color at position blended on top of baseColor
+func (this *Winner) ColorAt(position float64, baseColor RGBA) RGBA {
+
+	log.Println(this.left, this.right, position)
+
+	if this.left <= position && position <= this.right && int(this.time*4)%2 == 0 {
+		return this.color
+	}
+
+	return baseColor
+}
+
+// ZIndex
+func (this *Winner) ZIndex() ZIndex {
+	return 0
+}
+
+// Animate
+func (this *Winner) Animate(dt float64) bool {
+
+	this.time += dt
+
+	if this.time >= this.totalTime {
+		this.time = this.totalTime
+	}
+
+	return true
+}
+
+// Amount of time remaining in countdown
+func (this *Winner) TimeRemaining() float64 {
 	return this.totalTime - this.time
 }

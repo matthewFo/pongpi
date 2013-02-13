@@ -370,8 +370,6 @@ func NewWinner(field *GameField, leftWon bool, totalTime float64) *Winner {
 // Returns the color at position blended on top of baseColor
 func (this *Winner) ColorAt(position float64, baseColor RGBA) RGBA {
 
-	log.Println(this.left, this.right, position)
-
 	if this.left <= position && position <= this.right && int(this.time*4)%2 == 0 {
 		return this.color
 	}

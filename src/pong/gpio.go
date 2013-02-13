@@ -26,7 +26,6 @@ func NewGpioReader(settings SettingsData) *GpioReader {
 
 	var err error
 	_, err = os.Stat(settings.LeftButtonPath)
-	log.Println("Checking for ", settings.LeftButtonPath, err)
 	if err != nil && os.IsNotExist(err) {
 		cmd := exec.Command("/usr/local/bin/gpio", "export", "22", "in")
 		err = cmd.Run()
@@ -40,7 +39,6 @@ func NewGpioReader(settings SettingsData) *GpioReader {
 	}
 
 	_, err = os.Stat(settings.RightButtonPath)
-	log.Println("Checking for ", settings.RightButtonPath, err)
 	if err != nil && os.IsNotExist(err) {
 		cmd := exec.Command("/usr/local/bin/gpio", "export", "27", "in")
 		err = cmd.Run()

@@ -1,6 +1,7 @@
 package draw
 
 import (
+	"log"
 	. "pong"
 )
 
@@ -30,7 +31,7 @@ type Player struct {
 }
 
 // rate at which lifeAnimation changes
-var lifeAnimationRate float64 = 0.5
+var lifeAnimationRate float64 = 0.25
 
 var testPlayer Drawable = &Player{}
 
@@ -85,9 +86,9 @@ func (this *Player) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 
 	if this.paddleActive && position == this.start {
 		color = this.paddleColor.BlendWith(baseColor)
-	} else if left <= position && position <= right {
+	} else if left <= position && position <= right && this.life > 0 {
 
-		// animation is
+		// animation results in transparency going up and down from 0 to 0.5 when button not pushed, 0.5 to 1 while button pushed
 		var alphaAmount = this.lifeAnimation
 		if alphaAmount > 0.5 {
 			alphaAmount = 1.0 - alphaAmount
@@ -95,8 +96,16 @@ func (this *Player) ColorAt(position float64, baseColor RGBA) (color RGBA) {
 		if this.paddleActive {
 			alphaAmount += 0.5
 		}
+		alphaAmount += 0.25
+		if alphaAmount > 1.0 {
+			alphaAmount = 1.0
+		}
 
 		lifeColor := RGBA{this.lifeColor.R, this.lifeColor.G, this.lifeColor.B, uint8(float64(this.lifeColor.A) * alphaAmount)}
+
+		if position == 0 {
+			log.Println(this.lifeColor.A, alphaAmount, lifeColor.A)
+		}
 
 		color = lifeColor.BlendWith(baseColor)
 	} else {

@@ -1,7 +1,6 @@
 package draw
 
 import (
-	"log"
 	"math"
 	. "pong"
 )

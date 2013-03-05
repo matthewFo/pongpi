@@ -84,21 +84,25 @@ func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player, bounceFactor f
 
 		if !leftPlayer.paddleActive && this.position < leftPlayer.paddleLeft {
 			// player missed the ball
+			PlaySound(MISS)
 			return leftPlayer
 		} else if leftPlayer.paddleActive {
 			// player hit the ball back
 			this.position = leftPlayer.paddleRight + (leftPlayer.paddleRight - this.position)
 			this.velocity = this.velocity * -bounceFactor
+			PlaySound(LEFTBOUNCE)
 		}
 	} else if this.velocity > 0 && this.position > rightPlayer.paddleLeft {
 
 		if !rightPlayer.paddleActive && this.position > rightPlayer.paddleRight {
 			// player missed the ball
+			PlaySound(MISS)
 			return rightPlayer
 		} else if rightPlayer.paddleActive {
 			// player hit the ball back
 			this.position = rightPlayer.paddleLeft - (this.position - rightPlayer.paddleLeft)
 			this.velocity = this.velocity * -bounceFactor
+			PlaySound(RIGHTBOUNCE)
 		}
 	}
 

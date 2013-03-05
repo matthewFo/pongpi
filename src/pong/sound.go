@@ -3,6 +3,7 @@ package pong
 import (
 	"log"
 	"os/exec"
+	"runtime"
 )
 
 // Type of sound identifiers
@@ -17,10 +18,20 @@ const (
 	GAMEOVER              = "sounds/gameover.wav"
 )
 
+var playWavCommand string
+
+func init() {
+	if runtime.GOOS == "windows" {
+		playWavCommand = "c:/users/b.green/Desktop/sounder"
+	} else {
+		playWavCommand = "/usr/bin/paplay"
+	}
+}
+
 // Play the given sound
 func PlaySound(sound SoundType) {
-	cmd := exec.Command("/usr/bin/paplay", string(sound))
-	err := cmd.Run()
+	cmd := exec.Command(playWavCommand, string(sound))
+	err := cmd.Start()
 	if err != nil {
 		// log and ignore error since not playing the sound isn't critical
 		log.Print(err)

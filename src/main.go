@@ -81,8 +81,10 @@ func runIntro(buttons *GpioReader, display Display) {
 	curTime := time.Now()
 	prevTime := curTime
 
-	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
-	for _ = range ticks {
+	ticks := time.NewTicker(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	defer ticks.Stop()
+
+	for _ = range ticks.C {
 
 		prevTime, curTime = curTime, time.Now()
 		dt := curTime.Sub(prevTime).Seconds()
@@ -108,8 +110,10 @@ func runOpening(display Display) {
 	curTime := time.Now()
 	prevTime := curTime
 
-	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
-	for _ = range ticks {
+	ticks := time.NewTicker(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	defer ticks.Stop()
+
+	for _ = range ticks.C {
 
 		prevTime, curTime = curTime, time.Now()
 		dt := curTime.Sub(prevTime).Seconds()
@@ -140,8 +144,10 @@ func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
 	curTime := time.Now()
 	prevTime := curTime
 
-	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
-	for _ = range ticks {
+	ticks := time.NewTicker(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	defer ticks.Stop()
+
+	for _ = range ticks.C {
 
 		prevTime, curTime = curTime, time.Now()
 		dt := curTime.Sub(prevTime).Seconds()
@@ -181,8 +187,10 @@ func runClosing(buttons *GpioReader, display Display, winner bool) {
 	curTime := time.Now()
 	prevTime := curTime
 
-	ticks := time.Tick(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
-	for _ = range ticks {
+	ticks := time.NewTicker(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
+	defer ticks.Stop()
+
+	for _ = range ticks.C {
 
 		prevTime, curTime = curTime, time.Now()
 		dt := curTime.Sub(prevTime).Seconds()

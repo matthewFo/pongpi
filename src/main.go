@@ -105,7 +105,7 @@ func runOpening(display Display) {
 	countDown := NewCountdown(field, 2)
 	field.Add(countDown)
 
-	PlaySound(GAMESTART)
+	go PlaySound(GAMESTART)
 
 	curTime := time.Now()
 	prevTime := curTime
@@ -182,7 +182,7 @@ func runClosing(buttons *GpioReader, display Display, winner bool) {
 	winnerDisplay := NewWinner(field, winner, 4)
 	field.Add(winnerDisplay)
 
-	PlaySound(GAMEOVER)
+	go PlaySound(GAMEOVER)
 
 	curTime := time.Now()
 	prevTime := curTime

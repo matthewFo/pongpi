@@ -31,7 +31,7 @@ func init() {
 // Play the given sound
 func PlaySound(sound SoundType) {
 	cmd := exec.Command(playWavCommand, string(sound))
-	err := cmd.Start()
+	err := cmd.Run()
 	if err != nil {
 		// log and ignore error since not playing the sound isn't critical
 		log.Print(err)

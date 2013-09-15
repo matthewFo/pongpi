@@ -1,0 +1,36 @@
+download latest raspian image from http://www.raspberrypi.org/downloads
+Expand root to size of sd card
+run rpi-update
+run sudo apt-get update;sudo apt-get upgrade
+download go, wget https://go.googlecode.com/files/go1.1.2.src.tar.gz
+tar -xzf go1.1.2.src.tar.gz
+cd go/src
+./all.bash
+
+export PATH=$PATH:/home/pi/go/bin
+
+
+use amixer to adjust volume http://blog.scphillips.com/2013/01/sound-configuration-on-raspberry-pi-with-alsa/
+amixer cset numid=1 100%
+sudo alsactl store
+
+
+git clone https://code.google.com/p/pongpi
+cd pongpi/src
+export GOPATH=/home/pi/pongpi
+go build main.go
+
+setup wiringpi
+http://wiringpi.com/download-and-install/
+
+git clone git://git.drogon.net/wiringPi
+cd /wiringPi
+./build
+gpio load spi
+
+sudo nano /etc/rc.local
+
+add
+cd /home/pi/pongpi/src
+/usr/local/bin/gpio load spi
+./main & >> /var/log/pongpi.log 2>&1

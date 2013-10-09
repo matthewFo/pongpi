@@ -44,7 +44,7 @@ func NewPlayer(isLeft bool, lifeTime float64, field *GameField) (player *Player)
 			zindex:      10,
 			start:       0.0,
 			end:         (float64(field.Width()) / 2.0) - 1,
-			paddleLeft:  0.0,
+			paddleLeft:  -0.5,
 			paddleRight: 0.5,
 			life:        lifeTime,
 			lifeTotal:   lifeTime,
@@ -57,7 +57,7 @@ func NewPlayer(isLeft bool, lifeTime float64, field *GameField) (player *Player)
 			start:       float64(field.Width()) - 1.0,
 			end:         (float64(field.Width()) / 2.0),
 			paddleLeft:  float64(field.Width()) - 1.5,
-			paddleRight: float64(field.Width()) - 1.0,
+			paddleRight: float64(field.Width()) - 0.5,
 			life:        lifeTime,
 			lifeTotal:   lifeTime,
 		}

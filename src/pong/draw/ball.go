@@ -33,12 +33,22 @@ var _ Drawable = &Ball{}
 // Construct a Line
 func NewBall(field *GameField) *Ball {
 
-	return &Ball{
-		position:    0.0,
-		velocity:    float64(field.Width()) / 3.0,
-		maxPosition: float64(field.Width() - 1),
-		tailLength:  8.0,
-		zindex:      100,
+	if rand.Float64() > 0.5 {
+		return &Ball{
+			position:    0.0,
+			velocity:    -float64(field.Width()) / 2.0,
+			maxPosition: 0.0,
+			tailLength:  8.0,
+			zindex:      100,
+		}
+	} else {
+		return &Ball{
+			position:    0.0,
+			velocity:    float64(field.Width()) / 2.0,
+			maxPosition: float64(field.Width() - 1),
+			tailLength:  8.0,
+			zindex:      100,
+		}
 	}
 }
 
@@ -78,35 +88,37 @@ func (this *Ball) Animate(dt float64) bool {
 }
 
 // Check if the ball went past a player, returns nil or the player that missed the ball
-func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player, bounceFactor float64) (missedPlayer *Player) {
+func (this *Ball) MissedByPlayer(leftPlayer, rightPlayer *Player, bounceFactor float64) (missedPlayer *Player, hitBall bool) {
 
 	if this.velocity < 0 && this.position < leftPlayer.paddleRight {
 
 		if !leftPlayer.paddleActive && this.position < leftPlayer.paddleLeft {
 			// player missed the ball
 			go PlaySound(MISS)
-			return leftPlayer
+			return leftPlayer, false
 		} else if leftPlayer.paddleActive {
 			// player hit the ball back
 			this.position = leftPlayer.paddleRight + (leftPlayer.paddleRight - this.position)
 			this.velocity = this.velocity * -bounceFactor
 			go PlaySound(LEFTBOUNCE)
+			return nil, true
 		}
 	} else if this.velocity > 0 && this.position > rightPlayer.paddleLeft {
 
 		if !rightPlayer.paddleActive && this.position > rightPlayer.paddleRight {
 			// player missed the ball
 			go PlaySound(MISS)
-			return rightPlayer
+			return rightPlayer, false
 		} else if rightPlayer.paddleActive {
 			// player hit the ball back
 			this.position = rightPlayer.paddleLeft - (this.position - rightPlayer.paddleLeft)
 			this.velocity = this.velocity * -bounceFactor
 			go PlaySound(RIGHTBOUNCE)
+			return nil, true
 		}
 	}
 
-	return nil
+	return nil, false
 }
 
 // Reset the position to the middle of the field

@@ -1,6 +1,7 @@
 package pong
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"runtime"
@@ -34,6 +35,15 @@ func PlaySound(sound SoundType) {
 	err := cmd.Run()
 	if err != nil {
 		// log and ignore error since not playing the sound isn't critical
+		log.Print(err)
+	}
+}
+
+// Read the given text
+func PlayTTS(speak string) {
+	cmd := exec.Command("espeak", fmt.Sprint("-ven+f3 -k5 -s125 \"", speak, "\""))
+	err := cmd.Run()
+	if err != nil {
 		log.Print(err)
 	}
 }

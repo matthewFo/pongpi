@@ -63,8 +63,9 @@ func main() {
 	for {
 		runIntro(buttons, display)
 		runOpening(display)
-		winner := runGame(buttons, display)
+		winner, bounces := runGame(buttons, display)
 		runClosing(buttons, display, winner)
+		PlayTTS(fmt.Sprint(bounces, " total bounces"))
 	}
 }
 
@@ -129,7 +130,7 @@ func runOpening(display Display) {
 }
 
 // Run the actual game
-func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
+func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool, totalBounces int) {
 
 	field := NewGameField(64)
 
@@ -143,6 +144,7 @@ func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
 
 	curTime := time.Now()
 	prevTime := curTime
+	totalBounces = 0
 
 	ticks := time.NewTicker(time.Duration(Settings.MinFrameTime*1000.0) * time.Millisecond)
 	defer ticks.Stop()
@@ -161,18 +163,21 @@ func runGame(buttons *GpioReader, display Display) (leftPlayerWon bool) {
 
 		ball.UpdateOffensiveHide(leftPlayer, rightPlayer)
 
-		playerMissed := ball.MissedByPlayer(leftPlayer, rightPlayer, Settings.BounceVelocityIncrease)
+		playerMissed, bounce := ball.MissedByPlayer(leftPlayer, rightPlayer, Settings.BounceVelocityIncrease)
 		if playerMissed != nil {
 			ball.ResetPosition(field)
-			if playerMissed.DecreaseLife(0.5) {
-				return playerMissed == leftPlayer
+			if playerMissed.DecreaseLife(0.75) {
+				return playerMissed == leftPlayer, totalBounces
 			}
+		}
+		if bounce {
+			totalBounces++
 		}
 
 		field.RenderTo(display)
 	}
 
-	return false
+	panic("Shouldn't get here")
 }
 
 // Run an animation showing the winner

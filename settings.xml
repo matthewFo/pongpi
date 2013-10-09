@@ -1,6 +1,6 @@
 
 <SettingsData>
-	<MaxFPS>60</MaxFPS>
+	<MaxFPS>200</MaxFPS>
 	<LedCount>64</LedCount>
 	<SpiFilePath>/dev/spidev0.0</SpiFilePath>
 	<SpiBusSpeedHz>1000000</SpiBusSpeedHz>

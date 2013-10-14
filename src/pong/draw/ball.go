@@ -35,10 +35,10 @@ func NewBall(field *GameField) *Ball {
 
 	if rand.Float64() > 0.5 {
 		return &Ball{
-			position:    0.0,
+			position:    float64(field.Width()-1),
 			velocity:    -float64(field.Width()) / 2.0,
-			maxPosition: 0.0,
-			tailLength:  8.0,
+			maxPosition: float64(field.Width() -1),
+			tailLength:  7.0,
 			zindex:      100,
 		}
 	} else {
@@ -46,7 +46,7 @@ func NewBall(field *GameField) *Ball {
 			position:    0.0,
 			velocity:    float64(field.Width()) / 2.0,
 			maxPosition: float64(field.Width() - 1),
-			tailLength:  8.0,
+			tailLength:  7.0,
 			zindex:      100,
 		}
 	}

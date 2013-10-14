@@ -64,8 +64,8 @@ func main() {
 		runIntro(buttons, display)
 		runOpening(display)
 		winner, bounces := runGame(buttons, display)
+		go PlayTTS(fmt.Sprint("Game over. Score ", bounces))
 		runClosing(buttons, display, winner)
-		PlayTTS(fmt.Sprint(bounces, " total bounces"))
 	}
 }
 
@@ -187,7 +187,7 @@ func runClosing(buttons *GpioReader, display Display, winner bool) {
 	winnerDisplay := NewWinner(field, winner, 4)
 	field.Add(winnerDisplay)
 
-	go PlaySound(GAMEOVER)
+	//go PlaySound(GAMEOVER)
 
 	curTime := time.Now()
 	prevTime := curTime

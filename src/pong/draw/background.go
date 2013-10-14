@@ -47,10 +47,10 @@ func (this *Sinusoid) buildLookup() {
 
 // lookup the sine value instead of computing using math.Sin
 func (this *Sinusoid) lookup(fieldPercentage float64) uint8 {
-	if fieldPercentage > 1 {
+	if fieldPercentage >= 1 {
 		fieldPercentage -= 1
 	}
-	return this.sineLookup[int(fieldPercentage*256)]
+	return this.sineLookup[byte(fieldPercentage*256)]
 }
 
 // Returns the color at position blended on top of baseColor

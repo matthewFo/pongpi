@@ -40,9 +40,26 @@ func PlaySound(sound SoundType) {
 
 // Read the given text
 func PlayTTS(speak string) {
-	cmd := exec.Command("espeak", speak)
-	err := cmd.Run()
+	cmd := exec.Command("espeak", speak, "--stdout")
+	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Print(err)
+		return
 	}
+
+	playCmd := exec.Command("aplay")
+	playCmd.Stdin = stdout
+
+	if err := cmd.Start(); err != nil {
+		log.Print(err)
+		return
+	}
+
+	if err := playCmd.Start(); err != nil {
+		log.Print(err)
+		return
+	}
+
+	cmd.Wait()
+	playCmd.Wait()
 }

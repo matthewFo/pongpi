@@ -2,10 +2,17 @@ download latest raspian image from http://www.raspberrypi.org/downloads
 Expand root to size of sd card
 run rpi-update
 run sudo apt-get update;sudo apt-get upgrade
-download go, wget https://go.googlecode.com/files/go1.1.2.src.tar.gz
+
+download go, from source
+wget https://go.googlecode.com/files/go1.1.2.src.tar.gz
 tar -xzf go1.1.2.src.tar.gz
 cd go/src
 ./all.bash
+
+OR from precompiled source at http://dave.cheney.net/unofficial-arm-tarballs
+wget http://dave.cheney.net/paste/go1.2.linux-arm~multiarch-armv6-1.tar.gz
+tar -C /usr/local -xzf go1.2.linux-arm~multiarch-armv6-1.tar.gz
+
 
 export PATH=$PATH:/home/pi/go/bin
 
@@ -13,6 +20,9 @@ export PATH=$PATH:/home/pi/go/bin
 use amixer to adjust volume http://blog.scphillips.com/2013/01/sound-configuration-on-raspberry-pi-with-alsa/
 amixer cset numid=1 100%
 sudo alsactl store
+
+install espeak for the voice that reads the score
+sudo apt-get install espeak
 
 
 git clone https://code.google.com/p/pongpi
